@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Party Pit Stats</title>
+  <link rel="icon" type="image/png" sizes="64x64" href="hub/favicon-64.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #140b1f; --panel: rgba(255,255,255,.05); --line: rgba(255,255,255,.1); --ink: #f6f1ff; --muted: #b3a6c9; --gold: #ff3d8b; --green: #c6ff3d; --red: #ff5a5a; --blue: #7c5cff; color-scheme: dark; }
+    :root[data-theme="light"] { --bg: #f7f4fb; --panel: #fff; --line: #e6dff0; --ink: #1d1428; --muted: #6b5d80; --gold: #d81b6a; --green: #4f7a00; --red: #c9184a; --blue: #5b3ee0; color-scheme: light; }
+    @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg: #f7f4fb; --panel: #fff; --line: #e6dff0; --ink: #1d1428; --muted: #6b5d80; --gold: #d81b6a; --green: #4f7a00; --red: #c9184a; --blue: #5b3ee0; color-scheme: light; } }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, system-ui, sans-serif; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 20px 16px 48px; }
+    h1 { font-family: 'Bricolage Grotesque', sans-serif; margin: 0; font-size: 1.7rem; }
+    h1 span { color: var(--gold); }
+    header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+    .grow { flex: 1; }
+    button, input { font: inherit; color: inherit; }
+    .btn { border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 8px 12px; cursor: pointer; font-weight: 600; }
+    .btn:hover { border-color: var(--gold); }
+    .btn.gold { background: var(--gold); color: #fff; border-color: transparent; }
+    input { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(125px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; }
+    .tile .k { color: var(--muted); font-size: .76rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+    .tile .v { font-family: 'Bricolage Grotesque', sans-serif; font-size: 2rem; font-weight: 700; }
+    .tile.hl .v { color: var(--gold); }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+    .panel h2 { margin: 0 0 4px; font-size: 1.08rem; font-family: 'Bricolage Grotesque', sans-serif; }
+    .panel .sub { color: var(--muted); font-size: .85rem; margin: 0 0 12px; }
+    .chart { display: flex; align-items: flex-end; gap: 3px; height: 150px; border-bottom: 1px solid var(--line); }
+    .bar { flex: 1; background: var(--blue); border-radius: 4px 4px 0 0; min-height: 2px; opacity: .85; }
+    .bar:hover { background: var(--gold); opacity: 1; }
+    .axis { display: flex; justify-content: space-between; color: var(--muted); font-size: .75rem; margin-top: 4px; }
+    .tools { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .tools input { flex: 1 1 240px; }
+    .scroll { overflow-x: auto; scrollbar-width: none; }
+    .scroll::-webkit-scrollbar, html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
+    html, body { scrollbar-width: none; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    th { color: var(--muted); font-weight: 600; cursor: pointer; user-select: none; font-size: .82rem; }
+    th.sorted::after { content: ' ▾'; }
+    th.sorted.asc::after { content: ' ▴'; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    td.ua { max-width: 220px; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+    td.names { white-space: normal; min-width: 160px; }
+    .name { font-weight: 700; }
+    .chip { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: .78rem; font-weight: 700; }
+    .chip.host { background: rgba(255,61,139,.16); color: var(--gold); }
+    .chip.join { background: rgba(124,92,255,.16); color: var(--blue); }
+    .gchip { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: .76rem; font-weight: 700; margin: 1px 2px 1px 0; color: #fff; }
+    .gchip.landlords { background: #2f7de1; } .gchip.mean-meme-card-club { background: #7a3cff; } .gchip.tunnel-traitors { background: #c9781c; } .gchip.meowltdown { background: #2aa86a; }
+    .chip.game { background: rgba(198,255,61,.16); color: var(--green); }
+    .mono { font-family: ui-monospace, Consolas, monospace; font-size: .85rem; }
+    .login { max-width: 420px; margin: 12vh auto; }
+    .muted { color: var(--muted); }
+    .err { color: var(--red); }
+    .tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+    .tab { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 6px 14px; cursor: pointer; font-weight: 600; color: var(--muted); }
+    .tab.on { background: var(--gold); color: #fff; border-color: transparent; }
+    @media (max-width: 700px) {
+      .wrap { padding: 16px 14px 40px; }
+      h1 { font-size: 1.35rem; width: 100%; }
+      header .grow { display: none; }
+      header { gap: 8px; }
+      header .btn { flex: 1 1 auto; padding: 9px 10px; font-size: .88rem; }
+      #updated { width: 100%; order: 9; font-size: .8rem; }
+      .tiles { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .tile { padding: 12px 14px; }
+      .tile .v { font-size: 1.6rem; }
+      .chart { height: 110px; gap: 1px; }
+      .tab { flex: 1 1 auto; text-align: center; padding: 8px 10px; }
+      table, thead, tbody, tr, td { display: block; width: 100%; }
+      thead { display: none; }
+      tr { border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; margin-bottom: 10px; background: var(--panel); }
+      td { border: 0; padding: 4px 0; white-space: normal; display: flex; justify-content: space-between; gap: 12px; text-align: right; }
+      td::before { content: attr(data-label); color: var(--muted); font-size: .78rem; font-weight: 600; text-align: left; flex: none; }
+      td.name { font-size: 1.05rem; justify-content: flex-start; padding-bottom: 6px; }
+      td.name::before { display: none; }
+      td.num { text-align: right; }
+      td.ua { max-width: none; }
+      td.mono { word-break: break-all; }
+    }
+    #tip { position: fixed; pointer-events: none; background: #000; color: #fff; font-size: .8rem; padding: 4px 8px; border-radius: 6px; display: none; z-index: 5; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div id="login" class="panel login" hidden>
+      <h1>Party Pit <span>stats</span></h1>
+      <p class="muted">Enter the admin key to see who has been playing Landlords, Mean Meme Card Club, Tunnel Traitors and Meow-ltdown.</p>
+      <form id="loginForm" style="display:flex;gap:8px"><input id="key" type="password" placeholder="Admin key" style="flex:1" autocomplete="current-password"><button class="btn gold">Open</button></form>
+      <p id="loginErr" class="err"></p>
+    </div>
+    <div id="dash" hidden>
+      <header>
+        <h1>Party Pit <span>· players</span></h1>
+        <span class="grow"></span>
+        <span id="updated" class="muted"></span>
+        <button class="btn" id="refresh">Refresh</button>
+        <button class="btn" id="csv">Export CSV</button>
+        <button class="btn" id="reset">Reset stats</button>
+        <button class="btn" id="logout">Sign out</button>
+      </header>
+      <div class="tabs" id="games"></div>
+      <div class="tiles" id="tiles"></div>
+      <div class="panel"><h2>Activity per day</h2><p class="sub">Last 60 days. Hover a bar for details.</p><div class="chart" id="chart"></div><div class="axis" id="axis"></div></div>
+      <div class="panel">
+        <div class="tabs" id="tabs">
+          <button class="tab on" data-view="players">👤 Players</button>
+          <button class="tab" data-view="ips">🌐 IP addresses</button>
+          <button class="tab" data-view="recent">🕒 Recent activity</button>
+        </div>
+        <p class="sub" id="viewSub"></p>
+        <div class="tools"><input id="q" placeholder="Search names, IPs, rooms, places or browsers…"><span id="count" class="muted" style="align-self:center"></span></div>
+        <div class="scroll"><table><thead><tr id="head"></tr></thead><tbody id="rows"></tbody></table></div>
+      </div>
+    </div>
+  </div>
+  <div id="tip"></div>
+  <script type="importmap">{"imports":{"./shared/logos.js":"./shared/logos.js?v=mwxkg8ol","./shared/net.js":"./shared/net.js?v=mwxkg8ol","./shared/pwa.js":"./shared/pwa.js?v=mwxkg8ol"}}</script>
+  <script type="module" src="stats.js?v=mwxkg8ol"></script>
+</body>
+</html>

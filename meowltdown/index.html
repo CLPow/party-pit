@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Meow-ltdown</title>
+  <meta name="description" content="Meow-ltdown: a free online party card game for 2 to 40 players. Draw from the reactor, dodge the Meltdown, cool it down or blow up. Play in your browser with friends.">
+  <meta name="theme-color" content="#0b0f0c">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Meow-ltdown">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=mwxkg8ol">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="bg" aria-hidden="true"><div class="bg-grid"></div><div class="bg-glow"></div></div>
+
+  <section id="home" class="screen">
+    <a href="../" class="pp-back" style="position:absolute;left:max(12px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top));z-index:50;padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);color:#fff;font:700 13px Inter,system-ui,sans-serif;text-decoration:none">◀ Party Pit</a>
+    <div class="home-wrap">
+      <div class="hero">
+        <div id="heroLogo" class="hero-logo"></div>
+        <h1 class="sr-only">Meow-ltdown</h1>
+        <p class="tag">Draw from the reactor. Dodge the Meltdown. 2 to 40 players, no sign-up.</p>
+      </div>
+      <div class="panel home-panel">
+        <div id="resumeBox" class="resume" hidden>
+          <span>You were hosting room <b id="resumeCode"></b></span>
+          <button class="btn small hot" data-action="resume">Resume hosting</button>
+          <button class="btn small ghost" data-action="forget">Forget it</button>
+        </div>
+        <div class="me-row">
+          <div id="mePreview" class="me-preview"></div>
+          <label class="field grow">
+            <span>Your name</span>
+            <input id="nameIn" maxlength="20" autocomplete="nickname" placeholder="e.g. Dr. Fluff">
+          </label>
+        </div>
+        <div class="field"><span>Fur</span><div id="furRow" class="swatch-row"></div></div>
+        <div class="field"><span>Gear</span><div id="accRow" class="acc-row"></div></div>
+        <div class="field"><span>Colour</span><div id="colorRow" class="color-row"></div></div>
+        <div class="home-actions">
+          <button class="btn big hot" data-action="create">☢ Create a room</button>
+          <div class="join-row">
+            <input id="codeIn" maxlength="5" placeholder="CODE" autocapitalize="characters" autocomplete="off" spellcheck="false">
+            <button class="btn big cool" data-action="join">Join</button>
+          </div>
+        </div>
+        <button class="linkbtn" data-action="rules">How to play</button>
+        <div id="installBox" class="install" hidden>
+          <button id="installBtn" class="btn small ghost">📲 Install the app</button>
+          <p id="installHint" class="muted small" hidden></p>
+        </div>
+      </div>
+      <p class="fine">Meow-ltdown is an original fan-made party game. This site records your IP address, your player name and how many times you visit, for usage statistics. <button class="linkbtn" data-action="credits">Credits &amp; privacy</button></p>
+    </div>
+  </section>
+
+  <section id="lobby" class="screen" hidden>
+    <header class="topbar">
+      <div class="brand-mini"><span class="brand-ic"></span><span>Meow-ltdown</span></div>
+      <div class="grow"></div>
+      <button class="iconbtn" data-action="rules" title="How to play">?</button>
+      <button class="iconbtn" data-action="audio" title="Sound and motion">🔊</button>
+      <button class="iconbtn" data-action="leave" title="Leave">⏏</button>
+    </header>
+    <div class="lobby-wrap">
+      <div class="panel invite">
+        <div class="code-label">Room code</div>
+        <div id="roomCode" class="room-code">-----</div>
+        <div id="qr" class="qr"></div>
+        <div class="invite-btns">
+          <button class="btn small cool" data-action="copy">🔗 Copy invite</button>
+          <button class="btn small ghost" data-action="share">Share</button>
+        </div>
+        <p class="muted small" id="netNote">Connecting…</p>
+      </div>
+      <div class="panel players-panel">
+        <h2><span id="playerCount">0</span> in the lab <small class="muted">(max 40 + spectators)</small></h2>
+        <div id="lobbyPlayers" class="lobby-players"></div>
+      </div>
+      <div class="panel settings-panel">
+        <div id="settingsBox"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="table" class="screen" hidden>
+    <header class="topbar">
+      <div class="brand-mini"><span class="brand-ic"></span><span class="hide-phone">Meow-ltdown</span></div>
+      <div class="round-info"><span id="roundNo">Round 1</span><span id="codeMini" class="code-mini"></span></div>
+      <div class="grow"></div>
+      <button class="iconbtn" data-action="log" title="Reactor log">📜</button>
+      <button class="iconbtn" data-action="rules" title="How to play">?</button>
+      <button class="iconbtn" data-action="audio" title="Sound and motion">🔊</button>
+      <button class="iconbtn host-only" data-action="hostmenu" title="Host controls">⚙</button>
+      <button class="iconbtn" data-action="leave" title="Leave">⏏</button>
+    </header>
+    <div id="arena" class="arena">
+      <div id="tableTop" class="table-top"><svg id="dirRing" class="dir-ring" aria-hidden="true"><rect class="dr-a" x="14" y="14" rx="19%" ry="19%" style="width:calc(100% - 28px);height:calc(100% - 28px)"/><rect class="dr-b" x="14" y="14" rx="19%" ry="19%" style="width:calc(100% - 28px);height:calc(100% - 28px)"/></svg></div>
+      <div id="seats" class="seats"></div>
+      <div class="core">
+        <div id="deck" class="deck" title="The reactor"><div class="deck-stack"></div><div class="deck-count" id="deckCount">0</div><div id="critMark" class="crit-mark" hidden></div></div>
+        <div id="discardPile" class="discard"></div>
+        <div id="pendingSlot" class="pending-slot"></div>
+        <div id="reactRing" class="react-ring" hidden><svg viewBox="0 0 120 120"><circle class="rr-bg" cx="60" cy="60" r="54"/><circle class="rr-fg" id="rrFg" cx="60" cy="60" r="54"/></svg><span class="rr-label" id="rrText"></span></div>
+      </div>
+      <div id="status" class="status"></div>
+      <div id="turnClock" class="turn-clock" hidden><svg viewBox="0 0 36 36"><circle class="tr-bg" cx="18" cy="18" r="15.5"/><circle class="tr-fg" id="clockRing" cx="18" cy="18" r="15.5"/></svg><span id="clockText"></span></div>
+      <aside id="logBox" class="log-box"></aside>
+    </div>
+    <div id="handDock" class="hand-dock">
+      <div id="statusDock" class="status-dock"></div>
+      <div class="dock-bar">
+        <div class="voice-bar" id="voiceBar" hidden><button class="vbtn ptt" id="pttBtn" title="Hold to talk"><span class="vi">🎙</span><span class="vt">Hold</span></button><button class="vbtn" data-action="call" id="callBtn" title="Live call"><span class="vi">📞</span><span class="vt">Call</span></button><button class="vbtn" data-action="selfmute" id="muteBtn" title="Mute my mic" hidden><span class="vi">🎤</span></button></div>
+        <div class="react-bar" id="reactBar">
+          <button data-react="😹">😹</button><button data-react="🙀">🙀</button><button data-react="😾">😾</button><button data-react="🔥">🔥</button><button data-react="🧊">🧊</button><button data-react="💀">💀</button>
+          <button class="chat-btn" data-action="chat" title="Say something">💬</button>
+        </div>
+        <div class="grow"></div>
+        <div id="dockActions" class="dock-actions"></div>
+      </div>
+      <div id="hand" class="hand"></div>
+    </div>
+  </section>
+
+  <div id="bombStage" class="bomb-stage" hidden>
+    <div class="bs-vignette"></div>
+    <div class="bs-title" id="bsTitle"></div>
+    <div class="bs-sub" id="bsSub"></div>
+    <div class="bs-main"><div class="bs-card-wrap"><svg class="bs-ring" viewBox="0 0 200 200"><circle class="bs-ring-bg" cx="100" cy="100" r="92"/><circle class="bs-ring-fg" id="bsRing" cx="100" cy="100" r="92"/></svg><div id="bsCard" class="bs-card"></div></div>
+    </div><div class="bs-side"><div class="bs-title2"></div><div class="bs-controls" id="bsControls"></div></div></div>
+  </div>
+
+  <div id="inspect" class="inspect" hidden>
+    <div class="in-scrim" data-action="uninspect"></div>
+    <div class="in-stage"><div class="in-card" id="inCard"><div class="in-face in-front" id="inFront"></div><div class="in-face in-back" id="inBack"></div></div></div>
+    <div class="in-actions" id="inActions"></div>
+  </div>
+  <div id="banner" class="banner" aria-live="polite"></div>
+  <div id="modal" class="modal" hidden><div class="modal-card" id="modalCard"></div></div>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <div id="floaters" class="floaters" aria-hidden="true"></div>
+  <div id="flyLayer" class="fly-layer" aria-hidden="true"></div>
+  <canvas id="fxCanvas" class="fx-canvas" aria-hidden="true"></canvas>
+  <div id="flash" class="flash" aria-hidden="true"></div>
+
+  <script type="importmap">{"imports":{"./js/avatars.js":"./js/avatars.js?v=mwxkg8ol","./js/fx.js":"./js/fx.js?v=mwxkg8ol","./js/host.js":"./js/host.js?v=mwxkg8ol","./js/main.js":"./js/main.js?v=mwxkg8ol","./js/music.js":"./js/music.js?v=mwxkg8ol","./js/net.js":"./js/net.js?v=mwxkg8ol","./js/packs.js":"./js/packs.js?v=mwxkg8ol","./js/pwa.js":"./js/pwa.js?v=mwxkg8ol","./js/quality.js":"./js/quality.js?v=mwxkg8ol","./js/rules.js":"./js/rules.js?v=mwxkg8ol","./js/voice.js":"./js/voice.js?v=mwxkg8ol","../shared/logos.js":"../shared/logos.js?v=mwxkg8ol","../shared/net.js":"../shared/net.js?v=mwxkg8ol","../shared/pwa.js":"../shared/pwa.js?v=mwxkg8ol"}}</script>
+  <script type="module" src="js/main.js?v=mwxkg8ol"></script>
+</body>
+</html>

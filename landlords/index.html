@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, interactive-widget=resizes-content, viewport-fit=cover">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Landlords">
+  <meta name="description" content="Landlords: an animated online property-trading board game for up to 32 players. Free, in your browser.">
+  <meta name="theme-color" content="#0c1222">
+  <title>Landlords</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=mwxkg8ol">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+  <div id="bg" aria-hidden="true"></div>
+
+  <section id="home" class="screen active">
+    <a href="../" class="pp-back" style="position:absolute;left:max(12px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top));z-index:50;padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);color:#fff;font:700 13px Inter,system-ui,sans-serif;text-decoration:none">◀ Party Pit</a>
+    <form id="homeForm" class="home-card" autocomplete="off" novalidate>
+      <button type="submit" id="implicitSubmit" class="sr-only" tabindex="-1" aria-hidden="true"></button>
+      <h1 class="logo-big"><span class="l1">LAND</span><span class="l2">LORDS</span></h1>
+      <p class="tag">Buy the world, one city at a time. 2 to 32 players, right in your browser.</p>
+      <label class="field">Your name
+        <input id="nameIn" maxlength="16" autocomplete="nickname" enterkeyhint="go" placeholder="e.g. Mogul Mia">
+      </label>
+      <div class="field">Pick your token</div>
+      <div id="emojiPick" class="emoji-pick"></div>
+      <div class="home-actions">
+        <button id="createBtn" type="button" class="btn primary big">✨ Create a room</button>
+        <div class="or">or join a friend</div>
+        <div class="join-row">
+          <input id="codeIn" placeholder="ROOM CODE" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go">
+          <button id="joinBtn" type="button" class="btn big">Join</button>
+        </div>
+      </div>
+      <p id="homeStatus" class="status"></p>
+      <div id="installBox" class="install-box" hidden>
+        <button id="installBtn" type="button" class="btn install-btn">📲 Install Landlords as an app</button>
+        <p id="installHint" class="install-hint" hidden></p>
+      </div>
+      <p class="fine">This site records your IP address and play name, for usage statistics and so the creator can ask players for feedback.</p>
+    </form>
+  </section>
+
+  <section id="lobby" class="screen">
+    <div class="lobby-card">
+      <div class="room-head">
+        <div class="kicker">Room code</div>
+        <div id="roomCode" class="room-code">-----</div>
+        <button id="copyLink" class="btn small">🔗 Copy invite link</button>
+      </div>
+      <div id="lobbyCount" class="lobby-count"></div>
+      <div id="lobbyPlayers" class="lobby-players"></div>
+      <div class="mode-title">Game mode</div>
+      <div id="modePick" class="mode-pick"></div>
+      <div class="mode-title packs-title">Expansion packs <button id="packAll" type="button" class="btn tiny">Turn all on</button></div>
+      <div id="packPick" class="pack-pick"></div>
+      <div id="housePick" class="house-pick" hidden></div>
+      <div id="hostControls" class="host-controls">
+        <div class="settings">
+          <label id="minutesWrap">Time limit
+            <select id="setMinutes">
+              <option value="5">5 min</option>
+              <option value="10">10 min</option>
+              <option value="15">15 min</option>
+              <option value="20">20 min</option>
+              <option value="30">30 min</option>
+              <option value="45">45 min</option>
+              <option value="60">60 min</option>
+            </select>
+          </label>
+          <label id="roundsWrap">Rounds
+            <select id="setRounds">
+              <option value="5">5 rounds</option>
+              <option value="10">10 rounds</option>
+              <option value="15">15 rounds</option>
+              <option value="20">20 rounds</option>
+              <option value="30">30 rounds</option>
+            </select>
+          </label>
+          <label>Starting cash
+            <select id="setCash">
+              <option value="1000">$1,000</option>
+              <option value="1500">$1,500</option>
+              <option value="2000">$2,000</option>
+              <option value="3000">$3,000</option>
+            </select>
+          </label>
+          <label>Turn timer
+            <select id="setTimer">
+              <option value="20">20 s</option>
+              <option value="30">30 s</option>
+              <option value="45">45 s</option>
+              <option value="60">60 s</option>
+              <option value="90">90 s</option>
+            </select>
+          </label>
+        </div>
+        <div class="host-buttons">
+          <button id="addBotBtn" class="btn">🤖 Add a bot</button>
+          <button id="startBtn" class="btn primary big">🚀 Start game</button>
+        </div>
+      </div>
+      <div id="waitMsg" class="wait-msg"><span class="dots">Waiting for the host to start</span></div>
+    </div>
+  </section>
+
+  <section id="game" class="screen">
+    <div id="hudTop" class="hud-top"></div>
+    <div id="viewport">
+      <div id="stage">
+        <div id="board">
+          <div id="center">
+            <div class="center-bg"></div>
+            <div id="logo" class="logo"><span>LAND</span><span>LORDS</span></div>
+            <div id="turnBanner" class="turn-banner">
+              <div class="tb-avatar avatar"></div>
+              <div class="tb-text"><div class="tb-name"></div><div class="tb-round"></div></div>
+              <svg class="ring" viewBox="0 0 44 44"><circle class="ring-bg" cx="22" cy="22" r="19"/><circle class="ring-fg" cx="22" cy="22" r="19"/></svg>
+              <button id="accuseBtn" class="accuse-btn" type="button" hidden title="Accuse someone of cheating">🚨</button>
+            </div>
+            <div id="modeBar" class="mode-bar"><div class="mb-fill"></div><span class="mb-text"></span></div>
+            <div id="marketBar" class="market-bar" hidden></div>
+            <div id="diceArea" class="dice-area">
+              <div class="die-wrap"><div id="die1" class="die"></div></div>
+              <div class="die-wrap"><div id="die2" class="die"></div></div>
+              <div class="die-wrap speed-wrap" hidden><div id="die3" class="die speed"></div></div>
+            </div>
+            <div id="actions" class="actions"></div>
+            <div class="decks">
+              <div class="deck fortune"><div class="deck-card"></div><div class="deck-card"></div><div class="deck-card top"><span>❓</span>FORTUNE</div></div>
+              <div class="deck treasury"><div class="deck-card"></div><div class="deck-card"></div><div class="deck-card top"><span>💰</span>TREASURY</div></div>
+            </div>
+            <div id="buyBox" class="overlay-box"></div>
+            <div id="auctionBox" class="overlay-box"></div>
+            <div id="cardBox" class="overlay-box"></div>
+          </div>
+          <div id="ambient" aria-hidden="true"></div>
+          <div id="tokens"></div>
+        </div>
+      </div>
+      <div id="deskTop" class="desk-top"></div>
+      <div id="deskDock" class="desk-dock"></div>
+      <div id="deskOverlay" class="desk-overlay"></div>
+      <div class="cam-ctrls">
+        <button id="zoomIn" class="icon-btn" title="Zoom in">＋</button>
+        <button id="zoomOut" class="icon-btn" title="Zoom out">－</button>
+        <button id="zoomFit" class="icon-btn" title="Fit board">⤢</button>
+        <button id="followBtn" class="icon-btn on" title="Follow the action">🎯</button>
+      </div>
+    </div>
+    <aside id="side">
+      <div class="sheet-head"><span class="sheet-title"></span><button id="sheetClose" class="icon-btn" type="button" title="Close">✕</button></div>
+      <div id="meBar" class="me-bar">
+        <div class="me-avatar avatar"></div>
+        <div class="me-info"><div class="me-name"></div><div class="me-cash">$0</div><div class="me-worth"></div></div>
+        <div class="me-btns">
+          <button id="tradeBtn" class="icon-btn" title="Trade">🤝</button>
+          <button id="endBtn" class="icon-btn" title="End game" hidden>🏁</button>
+          <button id="rulesBtn" class="icon-btn" title="How to play">📜</button>
+          <button id="muteBtn" class="icon-btn" title="Sound & motion">🔊</button>
+        </div>
+      </div>
+      <div id="myOffers" class="my-offers"></div>
+      <div class="side-title">Landlords <span id="aliveCount"></span></div>
+      <div id="players" class="players"></div>
+      <div id="emotes" class="emotes"></div>
+      <div id="feed" class="feed"></div>
+      <form id="chatForm" class="chat-form" autocomplete="off">
+        <input id="chatIn" maxlength="140" placeholder="Say something…">
+        <button class="btn small">Send</button>
+      </form>
+    </aside>
+    <div id="hudBottom" class="hud-bottom">
+      <div class="hb-main"></div>
+      <nav class="tabbar">
+        <button id="playersTab" class="tab" type="button"><span>👥</span>Players</button>
+        <button id="chatTab" class="tab" type="button"><span>💬</span>Chat<b id="chatBadge" class="badge" hidden>0</b></button>
+        <button id="tradeTab" class="tab" type="button"><span>🤝</span>Trade</button>
+        <button id="rulesTab" class="tab" type="button"><span>📜</span>Rules</button>
+        <button id="muteTab" class="tab" type="button"><span>🔊</span>Sound</button>
+        <button id="endTab" class="tab" type="button" hidden><span>🏁</span>End</button>
+      </nav>
+    </div>
+    <div id="phoneOverlay"></div>
+    <div id="sheetBackdrop"></div>
+  </section>
+
+  <div id="modalRoot"></div>
+  <canvas id="fxCanvas"></canvas>
+  <div id="fxLayer"></div>
+  <div id="toasts"></div>
+
+  <script type="importmap">{"imports":{"./js/board.js":"./js/board.js?v=mwxkg8ol","./js/bot.js":"./js/bot.js?v=mwxkg8ol","./js/fx.js":"./js/fx.js?v=mwxkg8ol","./js/main.js":"./js/main.js?v=mwxkg8ol","./js/music.js":"./js/music.js?v=mwxkg8ol","./js/net.js":"./js/net.js?v=mwxkg8ol","./js/packs.js":"./js/packs.js?v=mwxkg8ol","./js/pwa.js":"./js/pwa.js?v=mwxkg8ol","./js/rules.js":"./js/rules.js?v=mwxkg8ol","./js/ui.js":"./js/ui.js?v=mwxkg8ol","../shared/logos.js":"../shared/logos.js?v=mwxkg8ol","../shared/net.js":"../shared/net.js?v=mwxkg8ol","../shared/pwa.js":"../shared/pwa.js?v=mwxkg8ol"}}</script>
+  <script type="module" src="js/main.js?v=mwxkg8ol"></script>
+</body>
+</html>

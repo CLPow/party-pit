@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@800&family=Fredoka:wght@700&family=Bricolage+Grotesque:opsz,wght@12..96,800&display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; background: #1b1b22; color: #eee; font: 600 16px system-ui; padding: 16px; }
+    .row { display: flex; align-items: flex-end; gap: 22px; margin-bottom: 22px; }
+    .row h3 { width: 150px; margin: 0; align-self: center; }
+    svg { display: block; }
+    .light { background: #f3f3f3; padding: 8px; border-radius: 10px; }
+    .mask { border-radius: 50%; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <div id="out"></div>
+  <script type="module">
+    import { logo } from '../shared/logos.js';
+    const q = new URLSearchParams(location.search);
+    const games = (q.get('games') || 'tunnel-traitors,meowltdown,party-pit').split(',');
+    const box = (svg, s, cls = '') => `<div class="${cls}" style="width:${s}px;height:${s}px">${svg.replace('<svg', `<svg width="${s}" height="${s}"`)}</div>`;
+    document.getElementById('out').innerHTML = games.flatMap((g) => (q.get('v') || 'a,b').split(',').map((v) => `<div class="row"><h3>${g}<br>option ${v.toUpperCase()}</h3>
+      ${box(logo(g, { variant: v, text: true }), 300)}${box(logo(g, { variant: v }), 192)}${box(logo(g, { variant: v, bleed: true }), 150, 'mask')}${box(logo(g, { variant: v }), 64)}${box(logo(g, { variant: v }), 32)}
+      <div class="light">${box(logo(g, { variant: v }), 48)}</div></div>`)).join('');
+    document.fonts.ready.then(() => requestAnimationFrame(() => { document.title = 'ready'; }));
+  </script>
+</body>
+</html>

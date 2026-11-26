@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Tunnel Traitors</title>
+  <meta name="description" content="Tunnel Traitors: a free online hidden-traitor mining board game for 3 to 32 players. Dig to the gold, unmask the traitors, play in your browser with friends.">
+  <meta name="theme-color" content="#140e0a">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Tunnel Traitors">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=mwxkg8ol">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="cave-bg" aria-hidden="true"><i></i><i></i><i></i></div>
+  <canvas id="fxCanvas" class="fx-canvas" aria-hidden="true"></canvas>
+
+  <section id="home" class="screen">
+    <a href="../" class="pp-back" style="position:absolute;left:max(12px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top));z-index:50;padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);color:#fff;font:700 13px Inter,system-ui,sans-serif;text-decoration:none">◀ Party Pit</a>
+    <div class="home-wrap">
+      <div class="logo">
+        <div class="sparkles" aria-hidden="true"><i style="left:12%;top:20%;animation-delay:0s"></i><i style="left:84%;top:14%;animation-delay:0.7s"></i><i style="left:20%;top:70%;animation-delay:1.4s"></i><i style="left:78%;top:62%;animation-delay:2.1s"></i><i style="left:50%;top:6%;animation-delay:0.35s"></i><i style="left:6%;top:46%;animation-delay:1.8s"></i><i style="left:92%;top:40%;animation-delay:1.1s"></i><i style="left:64%;top:84%;animation-delay:2.5s"></i></div>
+        <img class="logo-img" src="icons/logo.png" alt="Tunnel Traitors" width="320" height="320">
+        <p class="tag">Dig to the gold. Trust no one. A hidden-traitor mining game for 3 to 32 players, no sign-up.</p>
+      </div>
+      <div class="panel home-panel">
+        <div id="resumeBox" class="resume" hidden>
+          <span>You were hosting room <b id="resumeCode"></b></span>
+          <button class="btn small green" data-action="resume">Resume hosting</button>
+          <button class="btn small ghost" data-action="forget">Forget it</button>
+        </div>
+        <label class="field">
+          <span>Your name</span>
+          <input id="nameIn" maxlength="20" autocomplete="nickname" placeholder="e.g. Dynamite Dee">
+        </label>
+        <div class="field">
+          <span>Pick your miner</span>
+          <div id="avatarGrid" class="avatar-grid"></div>
+        </div>
+        <div class="field">
+          <span>Pick your colour</span>
+          <div id="colorRow" class="color-row"></div>
+        </div>
+        <div class="home-actions">
+          <button class="btn big gold" data-action="create">⛏️ Open a new mine</button>
+          <div class="join-row">
+            <input id="codeIn" maxlength="5" placeholder="CODE" autocapitalize="characters" autocomplete="off" spellcheck="false">
+            <button class="btn big green" data-action="join">Join</button>
+          </div>
+          <button class="linkbtn" data-action="rules">📜 How to play</button>
+        </div>
+        <div id="installBox" class="install" hidden>
+          <button id="installBtn" class="btn small ghost">📲 Install the app</button>
+          <p id="installHint" class="muted small" hidden></p>
+        </div>
+      </div>
+      <p class="fine">Tunnel Traitors is an original game. This site records your IP address, your player name and how many times you visit, for usage statistics. <button class="linkbtn" data-action="credits">Credits &amp; privacy</button></p>
+    </div>
+  </section>
+
+  <section id="lobby" class="screen" hidden>
+    <header class="topbar">
+      <div class="brand-mini"><img src="icons/favicon-64.png" alt="" width="28" height="28"><span>Tunnel Traitors</span></div>
+      <div class="grow"></div>
+      <button class="iconbtn" data-action="rules" title="How to play">📜</button>
+      <button class="iconbtn" data-action="sound" title="Sound and music">🔊</button>
+      <button class="iconbtn" data-action="leave" title="Leave">🚪</button>
+    </header>
+    <div class="lobby-wrap">
+      <div class="panel invite">
+        <div class="code-label">Mine code</div>
+        <div id="roomCode" class="room-code">-----</div>
+        <div id="qr" class="qr"></div>
+        <div class="invite-btns">
+          <button class="btn small green" data-action="copy">🔗 Copy invite link</button>
+          <button class="btn small ghost" data-action="share">📤 Share</button>
+        </div>
+        <p class="muted small" id="netNote">Connecting…</p>
+      </div>
+      <div class="panel players-panel">
+        <h2><span id="playerCount">0</span> miners <small class="muted">(3–32 + spectators)</small></h2>
+        <div id="lobbyPlayers" class="lobby-players"></div>
+      </div>
+      <div class="panel settings-panel">
+        <h2>Expansions &amp; house rules</h2>
+        <div id="settingsBox"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="game" class="screen" hidden>
+    <header class="topbar">
+      <div class="brand-mini"><img src="icons/favicon-64.png" alt="" width="28" height="28"><span class="hide-phone">Tunnel Traitors</span></div>
+      <div class="round-info"><span id="roundNo">Round 1</span><span id="deckInfo" class="deck-info"></span><span id="codeMini" class="code-mini"></span></div>
+      <div class="grow"></div>
+      <button class="iconbtn phone-only" data-action="players" title="Players">👥</button>
+      <button class="iconbtn" data-action="rules" title="How to play">📜</button>
+      <button class="iconbtn" data-action="sound" title="Sound and music">🔊</button>
+      <button class="iconbtn host-only" data-action="hostmenu" title="Host controls">⚙️</button>
+      <button class="iconbtn" data-action="leave" title="Leave">🚪</button>
+    </header>
+    <div class="game-wrap">
+      <aside id="players" class="players"></aside>
+      <main class="mine">
+        <div id="board" class="board"></div>
+        <div id="turnBar" class="turnbar idle">
+          <div id="status" class="status"></div>
+            <div class="timer" id="timer" hidden>
+              <svg viewBox="0 0 36 36"><circle class="tr-bg" cx="18" cy="18" r="15.5"/><circle class="tr-fg" id="timerRing" cx="18" cy="18" r="15.5"/></svg>
+              <span id="timerText">0</span>
+            </div>
+          <button id="nextRail" class="next-rail" data-action="players" title="Turn order"></button>
+        </div>
+        <div id="feed" class="feed" aria-live="polite"></div>
+        <div class="board-tools">
+          <button class="iconbtn" data-action="zin" title="Zoom in">＋</button>
+          <button class="iconbtn" data-action="zout" title="Zoom out">－</button>
+          <button class="iconbtn" data-action="fit" title="Fit the mine">⤢</button>
+        </div>
+      </main>
+    </div>
+    <div id="dock" class="dock">
+      <div class="dock-top">
+        <button id="roleChip" class="role-chip" data-action="role"></button>
+        <div id="selInfo" class="sel-info"></div>
+        <div class="dock-btns">
+          <button class="btn small ghost" data-action="rotate" id="rotBtn" hidden>↻ Rotate</button>
+          <button class="btn small gold" data-action="playself" id="selfBtn" hidden>Play it</button>
+          <button class="btn small danger" data-action="discard" id="discBtn" hidden>🗑 Discard</button>
+          <button class="btn small ghost" data-action="cancel" id="cancelBtn" hidden>✕</button>
+        </div>
+      </div>
+      <div id="hand" class="hand"></div>
+      <div class="react-bar" id="reactBar">
+        <button data-react="😂">😂</button><button data-react="🤨">🤨</button><button data-react="😱">😱</button><button data-react="🗡️">🗡️</button><button data-react="🙏">🙏</button><button data-react="💰">💰</button><button data-react="🤬">🤬</button>
+        <button class="chat-btn" data-action="chat" title="Say something">💬</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="modal" class="modal" hidden><div class="modal-card" id="modalCard"></div></div>
+  <div id="fxLayer" class="fx-layer" aria-hidden="true"></div>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script type="importmap">{"imports":{"./js/board.js":"./js/board.js?v=mwxkg8ol","./js/fx.js":"./js/fx.js?v=mwxkg8ol","./js/host.js":"./js/host.js?v=mwxkg8ol","./js/main.js":"./js/main.js?v=mwxkg8ol","./js/music.js":"./js/music.js?v=mwxkg8ol","./js/net.js":"./js/net.js?v=mwxkg8ol","./js/pwa.js":"./js/pwa.js?v=mwxkg8ol","./js/rules.js":"./js/rules.js?v=mwxkg8ol","../shared/logos.js":"../shared/logos.js?v=mwxkg8ol","../shared/net.js":"../shared/net.js?v=mwxkg8ol","../shared/pwa.js":"../shared/pwa.js?v=mwxkg8ol"}}</script>
+  <script type="module" src="js/main.js?v=mwxkg8ol"></script>
+</body>
+</html>

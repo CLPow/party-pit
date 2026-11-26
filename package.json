@@ -1,0 +1,10 @@
+{
+  "name": "party-pit",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "stamp": "node tools/stamp.js",
+    "sim": "node tools/sim-all.js",
+    "serve": "npx --yes http-server -c-1 -p 8080 ."
+  }
+}

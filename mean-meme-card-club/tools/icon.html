@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=block" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; }
+  svg { display: block; }
+  text { font-family: 'Silkscreen', monospace; font-weight: 700; }
+</style>
+</head>
+<body>
+<svg id="s" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" shape-rendering="crispEdges"></svg>
+<script>
+  const q = new URLSearchParams(location.search);
+  const size = Number(q.get('size') || 1024);
+  const mode = q.get('mode') || 'any';
+  const withText = mode === 'logo';
+  const full = mode === 'mask' || mode === 'apple';
+  const svg = document.getElementById('s');
+  svg.setAttribute('width', size);
+  svg.setAttribute('height', size);
+
+  function stepRect(x, y, w, h, s) {
+    const p = [
+      [x + 2 * s, y], [x + w - 2 * s, y], [x + w - 2 * s, y + s], [x + w - s, y + s], [x + w - s, y + 2 * s], [x + w, y + 2 * s],
+      [x + w, y + h - 2 * s], [x + w - s, y + h - 2 * s], [x + w - s, y + h - s], [x + w - 2 * s, y + h - s], [x + w - 2 * s, y + h],
+      [x + 2 * s, y + h], [x + 2 * s, y + h - s], [x + s, y + h - s], [x + s, y + h - 2 * s], [x, y + h - 2 * s],
+      [x, y + 2 * s], [x + s, y + 2 * s], [x + s, y + s], [x + 2 * s, y + s],
+    ];
+    return 'M' + p.map((a) => a.join(',')).join('L') + 'Z';
+  }
+
+  function pixels(map, colors, px) {
+    let out = '';
+    map.forEach((row, y) => [...row].forEach((ch, x) => {
+      if (colors[ch]) out += `<rect x="${x * px}" y="${y * px}" width="${px}" height="${px}" fill="${colors[ch]}"/>`;
+    }));
+    return out;
+  }
+
+  function faceMap() {
+    const N = 22;
+    const g = Array.from({ length: N }, () => Array(N).fill('.'));
+    const c = (N - 1) / 2;
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      const d = Math.hypot(x - c, y - c);
+      if (d <= 9.2) g[y][x] = (y > 14 && d > 6.6) || (x > 16 && d > 7.4) ? 'O' : 'Y';
+      else if (d <= 10.6) g[y][x] = 'K';
+    }
+    [[5, 4], [6, 4], [4, 5], [5, 5], [4, 6], [7, 3], [8, 3]].forEach(([x, y]) => { g[y][x] = 'H'; });
+    const set = (pts, ch) => pts.forEach(([x, y]) => { g[y][x] = ch; });
+    set([[4, 7], [5, 7], [6, 8], [7, 8], [8, 9], [7, 10], [6, 10], [5, 11], [4, 11]], 'K');
+    set([[17, 7], [16, 7], [15, 8], [14, 8], [13, 9], [14, 10], [15, 10], [16, 11], [17, 11]], 'K');
+    for (let x = 5; x <= 16; x++) g[12][x] = 'K';
+    for (let x = 5; x <= 16; x++) g[13][x] = x === 5 || x === 16 ? 'K' : 'W';
+    for (let y = 14; y <= 16; y++) {
+      const a = 5 + (y - 14);
+      const b = 16 - (y - 14);
+      for (let x = a; x <= b; x++) g[y][x] = x === a || x === b ? 'K' : 'M';
+    }
+    for (let x = 9; x <= 12; x++) { g[16][x] = 'R'; g[15][x] = x === 9 || x === 12 ? 'M' : 'R'; }
+    for (let x = 8; x <= 13; x++) g[17][x] = 'K';
+    const tear = [[2, 9], [1, 10], [2, 10], [3, 10], [0, 11], [1, 11], [2, 11], [3, 11], [0, 12], [1, 12], [2, 12], [3, 12], [1, 13], [2, 13], [3, 13], [1, 14], [2, 14], [2, 15]];
+    const shine = [[1, 11], [1, 12]];
+    tear.forEach(([x, y]) => { g[y][x] = 'B'; g[y][N - 1 - x] = 'B'; });
+    shine.forEach(([x, y]) => { g[y][x] = 'b'; g[y][N - 1 - x] = 'b'; });
+    set([[3, 8], [18, 8]], 'B');
+    return g.map((r) => r.join(''));
+  }
+
+  const POOP = [
+    '....KK....',
+    '...KBBK...',
+    '..KBBBBK..',
+    '..KKKKKK..',
+    '.KBWKBWBK.',
+    '.KBKKBKBK.',
+    'KBBBBBBBBK',
+    'KBBKKKKBBK',
+    'KKKKKKKKKK',
+  ];
+
+  const FACE_COLORS = { K: '#2b1600', Y: '#ffd23d', O: '#f59e0b', H: '#fff4b0', W: '#ffffff', M: '#6b1d0a', R: '#ff5a7a', B: '#3aa0ff', b: '#bfe6ff' };
+  const SHADOW = Object.fromEntries(Object.keys(FACE_COLORS).map((k) => [k, '#000']));
+  const POOP_COLORS = { K: '#2b1600', B: '#8a4b1f', W: '#ffffff' };
+
+  function card(x, y, w, h, rot, label, labelBottom) {
+    let s = `<g transform="translate(${x} ${y}) rotate(${rot} ${w / 2} ${h / 2})">`;
+    s += `<path d="${stepRect(8, 14, w, h, 14)}" fill="#000" opacity="0.55"/>`;
+    s += `<path d="${stepRect(0, 0, w, h, 14)}" fill="#ffffff"/>`;
+    s += `<path d="${stepRect(16, 16, w - 32, h - 32, 10)}" fill="#0b0b0f"/>`;
+    if (label) s += `<text x="${w / 2}" y="92" font-size="66" fill="#fff" text-anchor="middle">${label}</text>`;
+    if (labelBottom) s += `<text x="${w / 2}" y="${h - 46}" font-size="66" fill="#fff" text-anchor="middle">${labelBottom}</text>`;
+    return s + '</g>';
+  }
+
+  const sc = withText ? 0.86 : mode === 'mask' ? 0.78 : 1;
+  const oy = withText ? 40 : mode === 'mask' ? 215 : 70;
+  const R = 200;
+  const rr = full ? 0 : R;
+  let html = `<defs>
+    <radialGradient id="glow" cx="50%" cy="44%" r="55%"><stop offset="0" stop-color="#ff3d8b" stop-opacity="0.45"/><stop offset="0.6" stop-color="#7c5cff" stop-opacity="0.12"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a5a66"/><stop offset="0.5" stop-color="#1a1a20"/><stop offset="1" stop-color="#3a3a44"/></linearGradient>
+    <pattern id="scan" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="4" fill="#fff" opacity="0.025"/></pattern>
+  </defs>`;
+  html += full ? '<rect width="1024" height="1024" fill="#0a0a0c"/>' : `<rect x="12" y="12" width="1000" height="1000" rx="${R}" fill="#0a0a0c"/>`;
+  if (mode !== 'mask') html += `<rect x="12" y="12" width="1000" height="1000" rx="${R}" fill="none" stroke="url(#rim)" stroke-width="14"/>`;
+  html += `<rect x="12" y="12" width="1000" height="1000" rx="${rr}" fill="url(#glow)"/>`;
+  html += `<rect x="12" y="12" width="1000" height="1000" rx="${rr}" fill="url(#scan)"/>`;
+  const spark = (x, y, s, c) => `<g fill="${c}"><rect x="${x - s / 2}" y="${y - s * 1.5}" width="${s}" height="${s * 3}"/><rect x="${x - s * 1.5}" y="${y - s / 2}" width="${s * 3}" height="${s}"/></g>`;
+  html += spark(170, 210, 14, '#c6ff3d') + spark(860, 660, 12, '#ff3d8b') + spark(150, 640, 10, '#7c5cff') + spark(880, 170, 10, '#ffffff');
+
+  html += `<g transform="translate(${512 - 512 * sc} ${oy}) scale(${sc})">`;
+  html += card(170, 210, 300, 420, -17, 'MEME', '');
+  html += card(570, 235, 300, 420, 16, 'CARD', '');
+  html += card(362, 120, 300, 500, -3, 'MEAN', 'CLUB');
+  const px = 11;
+  const fw = 22 * px;
+  const face = faceMap();
+  html += `<g transform="translate(${512 - fw / 2} ${372 - fw / 2})"><g transform="translate(10 14)" opacity="0.45">${pixels(face, SHADOW, px)}</g>${pixels(face, FACE_COLORS, px)}</g>`;
+  html += `<g transform="translate(650 60) rotate(6)">
+    <path d="${stepRect(8, 12, 260, 118, 12)}" fill="#000" opacity="0.5"/>
+    <path d="${stepRect(0, 0, 260, 118, 12)}" fill="#ffffff"/>
+    <path d="M36,118 L36,154 L48,154 L48,142 L60,142 L60,130 L72,130 L72,118 Z" fill="#ffffff"/>
+    <g transform="translate(22 22)">${pixels(POOP, POOP_COLORS, 8)}</g>
+    <text x="178" y="80" font-size="56" fill="#0b0b0f" text-anchor="middle">LOL</text>
+  </g>`;
+  html += '</g>';
+
+  if (withText) {
+    html += '<text x="518" y="866" font-size="104" fill="#000" opacity="0.6" text-anchor="middle">MEAN MEME</text>';
+    html += '<text x="512" y="858" font-size="104" fill="#ffffff" text-anchor="middle">MEAN MEME</text>';
+    html += '<text x="512" y="940" font-size="62" fill="#c6ff3d" text-anchor="middle" letter-spacing="10">CARD CLUB</text>';
+  }
+  svg.innerHTML = html;
+  document.fonts.load('700 40px Silkscreen').then(() => document.fonts.ready).then(() => { document.title = 'ready'; });
+</script>
+</body>
+</html>
