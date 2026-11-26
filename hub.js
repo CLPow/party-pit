@@ -1,4 +1,5 @@
 import { logo } from './shared/logos.js';
+import { initFeedback } from './shared/feedback.js';
 
 export const GAMES = [
   { id: 'landlords', name: 'Landlords', players: '2–32', tag: 'Property trading', desc: 'Roll, buy world cities, build skyscrapers and bankrupt your friends on an animated board.', color: '#2f7de1' },
@@ -22,3 +23,5 @@ document.getElementById('games').innerHTML = GAMES.map((g) => `
     <span class="play">Play ▶</span>
   </a>`).join('');
 
+
+initFeedback({ game: 'hub', always: true });

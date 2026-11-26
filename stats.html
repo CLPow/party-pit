@@ -50,6 +50,8 @@
     td.num { text-align: right; font-variant-numeric: tabular-nums; }
     td.ua { max-width: 220px; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
     td.names { white-space: normal; min-width: 160px; }
+    td.fbtext { white-space: pre-wrap; min-width: 260px; max-width: 480px; }
+    .gchip.hub { background: #5a6ab0; }
     .name { font-weight: 700; }
     .chip { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: .78rem; font-weight: 700; }
     .chip.host { background: rgba(255,61,139,.16); color: var(--gold); }
@@ -116,6 +118,7 @@
           <button class="tab on" data-view="players">👤 Players</button>
           <button class="tab" data-view="ips">🌐 IP addresses</button>
           <button class="tab" data-view="recent">🕒 Recent activity</button>
+          <button class="tab" data-view="feedback">💬 Feedback <span id="fbCount"></span></button>
         </div>
         <p class="sub" id="viewSub"></p>
         <div class="tools"><input id="q" placeholder="Search names, IPs, rooms, places or browsers…"><span id="count" class="muted" style="align-self:center"></span></div>
@@ -124,7 +127,7 @@
     </div>
   </div>
   <div id="tip"></div>
-  <script type="importmap">{"imports":{"./shared/logos.js":"./shared/logos.js?v=mwxmilfn","./shared/net.js":"./shared/net.js?v=mwxmilfn","./shared/pwa.js":"./shared/pwa.js?v=mwxmilfn"}}</script>
-  <script type="module" src="stats.js?v=mwxmilfn"></script>
+  <script type="importmap">{"imports":{"./shared/feedback.js":"./shared/feedback.js?v=mwxn1372","./shared/logos.js":"./shared/logos.js?v=mwxn1372","./shared/net.js":"./shared/net.js?v=mwxn1372","./shared/pwa.js":"./shared/pwa.js?v=mwxn1372"}}</script>
+  <script type="module" src="stats.js?v=mwxn1372"></script>
 </body>
 </html>

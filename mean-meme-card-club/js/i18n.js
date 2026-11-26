@@ -200,8 +200,8 @@ const ZH = {
   'The card packs changed since this room was saved, so the game went back to the lobby.': '卡包内容有变动，游戏已回到大厅。',
   'Mean Meme Card Club is installed. Open it from your home screen or app list.': '已安装！可以从主屏幕或应用列表打开。',
   'PICK {n}': '选 {n} 张',
-  'Card text for the classic packs is loaded from the open <a href="https://github.com/crhallberg/json-against-humanity" target="_blank" rel="noopener">JSON Against Humanity</a> dataset and is licensed <a href="https://creativecommons.org/licenses/by-nc-sa/2.0/" target="_blank" rel="noopener">CC BY-NC-SA 2.0</a>. This site is not affiliated with or endorsed by Cards Against Humanity LLC. This site records your IP address, your player name and how many times you visit, for usage statistics.':
-    '经典英文卡包的卡面来自开放数据集 <a href="https://github.com/crhallberg/json-against-humanity" target="_blank" rel="noopener">JSON Against Humanity</a>，采用 <a href="https://creativecommons.org/licenses/by-nc-sa/2.0/" target="_blank" rel="noopener">CC BY-NC-SA 2.0</a> 许可。本站与 Cards Against Humanity LLC 无关，也未获其认可。本站会记录你的 IP 地址、玩家名字和访问次数，用于统计。',
+  'Card text for the classic packs is loaded from the open <a href="https://github.com/crhallberg/json-against-humanity" target="_blank" rel="noopener">JSON Against Humanity</a> dataset and is licensed <a href="https://creativecommons.org/licenses/by-nc-sa/2.0/" target="_blank" rel="noopener">CC BY-NC-SA 2.0</a>. This site is not affiliated with or endorsed by Cards Against Humanity LLC.':
+    '经典英文卡包的卡面来自开放数据集 <a href="https://github.com/crhallberg/json-against-humanity" target="_blank" rel="noopener">JSON Against Humanity</a>，采用 <a href="https://creativecommons.org/licenses/by-nc-sa/2.0/" target="_blank" rel="noopener">CC BY-NC-SA 2.0</a> 许可。本站与 Cards Against Humanity LLC 无关，也未获其认可。',
 };
 
 let current = 'en';

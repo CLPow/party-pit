@@ -1,3 +1,4 @@
+import { initFeedback } from '../../shared/feedback.js';
 import { joinHost, randomCode, RELAY_URL } from './net.js';
 import { startHost, savedHost, clearSavedHost } from './host.js';
 import { CARDS, PACKS, HOUSE, PLAYABLE, TARGETED } from './packs.js';
@@ -1935,3 +1936,5 @@ else if (seat && urlCode && seat.code === urlCode && app.me.name) beginJoin(urlC
 else if (params.has('bots') && params.has('autostart') && app.me.name) beginHost(null);
 
 window.__mow = app;
+
+initFeedback({ game: 'meowltdown' });

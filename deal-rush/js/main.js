@@ -1,3 +1,4 @@
+import { initFeedback } from '../../shared/feedback.js';
 import { joinHost, randomCode, RELAY_URL } from './net.js';
 import { startHost, savedHost, clearSavedHost } from './host.js';
 import { GROUPS, G, ACTIONS, cardInfo, HAND_MAX, PLAYS, setsToWin, bestCover } from './rules.js';
@@ -774,3 +775,5 @@ hit('visit');
 const roomParam = (params.get('room') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5);
 if (roomParam && app.me.name && !params.has('nojoin')) setTimeout(() => { if (!app.role) beginJoin(roomParam); }, 50);
 window.__dr = app;
+
+initFeedback({ game: 'deal-rush' });

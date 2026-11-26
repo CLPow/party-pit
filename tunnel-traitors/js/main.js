@@ -1,3 +1,4 @@
+import { initFeedback } from '../../shared/feedback.js';
 import { joinHost, randomCode, RELAY_URL } from './net.js';
 import { startHost, savedHost, clearSavedHost } from './host.js';
 import * as R from './rules.js';
@@ -1426,3 +1427,5 @@ if (saved && urlCode === saved.code && saved.me?.key === app.me.key) beginHost(s
 else if (seat && urlCode && seat.code === urlCode && app.me.name) beginJoin(urlCode);
 
 window.__tt = app;
+
+initFeedback({ game: 'tunnel-traitors' });

@@ -1,7 +1,7 @@
 import { RELAY_BASE as RELAY_URL } from './shared/net.js';
 
 const GAMES = [['', 'All games'], ['landlords', 'Landlords'], ['mean-meme-card-club', 'Mean Meme Card Club'], ['tunnel-traitors', 'Tunnel Traitors'], ['meowltdown', 'Meow-ltdown'], ['deal-rush', 'Deal Rush']];
-const GNAME = Object.fromEntries(GAMES.slice(1));
+const GNAME = { ...Object.fromEntries(GAMES.slice(1)), hub: 'Hub' };
 const chips = (list) => String(list || '').split(',').filter(Boolean).map((g) => `<span class="gchip ${esc(g)}">${esc(GNAME[g] || g)}</span>`).join('');
 let game = '';
 
@@ -26,6 +26,15 @@ function browser(ua) {
 const KIND = { host: ['host', 'Hosted a room'], join: ['join', 'Joined a room'], game: ['game', 'Played a game'] };
 
 const VIEWS = {
+  feedback: {
+    sub: 'What players sent through the Feedback tab, newest first.',
+    list: () => data.feedback || [],
+    cols: [['ts', 'When'], ['game', 'Game'], ['rating', 'Stars'], ['text', 'Feedback'], ['name', 'Name'], ['contact', 'Contact'], ['ip', 'IP address'], ['country', 'Country'], ['ua', 'Device']],
+    search: (v) => [v.text, v.name, v.contact, v.ip, v.country, v.game],
+    row: (v) => `<td title="${esc(when(v.ts))}">${esc(when(v.ts))}</td><td>${chips(v.game)}</td><td class="num">${v.rating ? '⭐'.repeat(v.rating) : '<span class="muted">-</span>'}</td>
+      <td class="fbtext">${esc(v.text)}</td><td class="name">${esc(v.name)}</td><td>${esc(v.contact)}</td><td class="mono">${esc(v.ip)}</td><td>${esc(v.country)}</td><td class="ua" title="${esc(v.ua)}">${esc(browser(v.ua))}</td>`,
+    sort: { key: 'ts', asc: false },
+  },
   players: {
     sub: 'Everyone who hosted, joined or played, by the name they used. Use this to reach people for feedback.',
     list: () => data.players,
@@ -110,6 +119,7 @@ function render() {
   ];
   $('#tiles').innerHTML = tiles.map(([k, v, hl]) => `<div class="tile${hl ? ' hl' : ''}"><div class="k">${k}</div><div class="v">${Number(v || 0).toLocaleString()}</div></div>`).join('');
   $('#updated').textContent = 'Updated ' + new Date(data.generated).toLocaleTimeString();
+  $('#fbCount').textContent = (data.feedback || []).length ? `(${data.feedback.length})` : '';
 
   const days = [];
   for (let i = 59; i >= 0; i--) {

@@ -1,3 +1,4 @@
+import { initFeedback } from '../../shared/feedback.js';
 import { joinHost, randomCode, RELAY_URL } from './net.js';
 import { startHost, savedHost, clearSavedHost } from './host.js';
 import { catalogue, loadDataset, presetPacks } from './cards.js';
@@ -1140,3 +1141,5 @@ if (saved && urlCode === saved.code && saved.me?.key === app.me.key) {
 }
 
 window.__mmcc = app;
+
+initFeedback({ game: 'mean-meme-card-club' });

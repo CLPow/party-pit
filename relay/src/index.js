@@ -39,9 +39,32 @@ export default {
     const origin = request.headers.get('Origin') || '';
     if (url.pathname === '/') return new Response('Party Pit relay is running.');
 
-    if (url.pathname === '/hit' || url.pathname === '/stats' || url.pathname === '/stats/reset') {
+    if (url.pathname === '/hit' || url.pathname === '/feedback' || url.pathname === '/stats' || url.pathname === '/stats/reset') {
       if (request.method === 'OPTIONS') return cors(origin, new Response(null, { status: 204 }));
       const stats = env.STATS.get(env.STATS.idFromName('global'));
+      if (url.pathname === '/feedback') {
+        if (request.method !== 'POST') return new Response('Method not allowed', { status: 405 });
+        if (!allowed(origin)) return new Response('Forbidden origin', { status: 403 });
+        let body = {};
+        try { body = JSON.parse((await request.text()).slice(0, 8000)); } catch { /* empty body */ }
+        const ua = request.headers.get('User-Agent') || '';
+        if (!ua || BOT_UA.test(ua) || body.wd) return cors(origin, new Response(null, { status: 204 }));
+        const text = String(body.text || '').replace(/[\u0000-\u0008\u000b-\u001f\u007f]/g, '').trim().slice(0, 1000);
+        if (text.length < 3) return cors(origin, new Response('Too short', { status: 400 }));
+        const cf = request.cf || {};
+        const ok = await stats.feedback({
+          game: GAMES.includes(body.game) ? body.game : 'hub',
+          ip: request.headers.get('CF-Connecting-IP') || 'unknown',
+          name: cleanName(body.name),
+          contact: String(body.contact || '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 80),
+          rating: Math.max(0, Math.min(5, Math.round(Number(body.rating) || 0))),
+          text,
+          country: cf.country || '',
+          city: cf.city || '',
+          ua: ua.slice(0, 300),
+        });
+        return cors(origin, new Response(null, { status: ok ? 204 : 429 }));
+      }
       if (url.pathname === '/hit') {
         if (request.method !== 'POST') return new Response('Method not allowed', { status: 405 });
         if (!allowed(origin)) return new Response('Forbidden origin', { status: 403 });
@@ -99,6 +122,8 @@ export class Stats extends DurableObject {
       first_seen INTEGER NOT NULL, last_seen INTEGER NOT NULL, last_room TEXT, PRIMARY KEY (game, name, ip))`);
     this.sql.exec('CREATE TABLE IF NOT EXISTS events (ts INTEGER NOT NULL, game TEXT NOT NULL, ip TEXT NOT NULL, kind TEXT NOT NULL, name TEXT, room TEXT, players INTEGER)');
     this.sql.exec('CREATE INDEX IF NOT EXISTS events_ts ON events (ts)');
+    this.sql.exec('CREATE TABLE IF NOT EXISTS feedback (ts INTEGER NOT NULL, game TEXT NOT NULL, ip TEXT NOT NULL, name TEXT, contact TEXT, rating INTEGER, text TEXT NOT NULL, country TEXT, city TEXT, ua TEXT)');
+    this.fbRecent = new Map();
   }
 
   limited(ip, now) {
@@ -133,7 +158,19 @@ export class Stats extends DurableObject {
     if (Math.random() < 0.02) this.sql.exec('DELETE FROM events WHERE ts < ?', now - KEEP_DAYS * 86400000);
   }
 
+  async feedback({ game, ip, name, contact, rating, text, country, city, ua }) {
+    const now = Date.now();
+    const list = (this.fbRecent.get(ip) || []).filter((t) => now - t < 3600000);
+    if (list.length >= 6) return false;
+    list.push(now);
+    this.fbRecent.set(ip, list);
+    if (this.fbRecent.size > 5000) this.fbRecent.clear();
+    this.sql.exec('INSERT INTO feedback (ts, game, ip, name, contact, rating, text, country, city, ua) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', now, game, ip, name || null, contact || null, rating || null, text, country, city, ua);
+    return true;
+  }
+
   async reset() {
+    this.sql.exec('DELETE FROM feedback');
     this.sql.exec('DELETE FROM visitors');
     this.sql.exec('DELETE FROM names');
     this.sql.exec('DELETE FROM events');
@@ -174,7 +211,8 @@ export class Stats extends DurableObject {
       COALESCE(SUM(joins), 0) AS joins, COALESCE(SUM(games), 0) AS games, (SELECT COUNT(DISTINCT name) FROM ${N}) AS names FROM ${V}`, ...g, ...g).one();
     const byGame = this.sql.exec(`SELECT game, COUNT(DISTINCT ip) AS unique_ips, SUM(visits) AS visits, SUM(hosts) AS hosts, SUM(joins) AS joins, SUM(games) AS games
       FROM visitors GROUP BY game`).toArray();
-    return { generated: Date.now(), game: game || 'all', totals, byGame, days, visitors, players, recent };
+    const feedback = this.sql.exec(`SELECT ts, game, ip, name, contact, rating, text, country, city, ua FROM feedback ${game ? 'WHERE game = ?' : ''} ORDER BY ts DESC LIMIT 500`, ...g).toArray();
+    return { generated: Date.now(), game: game || 'all', totals, byGame, days, visitors, players, recent, feedback };
   }
 }
 

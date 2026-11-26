@@ -1,3 +1,4 @@
+import { initFeedback } from '../../shared/feedback.js';
 import { newState, addPlayer, removePlayer, startGame, act, tick, endNow, P, MAX_PLAYERS, StaleAction, TURN_ACTS, actCtx } from './rules.js';
 import { botStep, BOT_NAMES } from './bot.js';
 import { createHost, joinHost, randomCode, RELAY_URL } from './net.js';
@@ -361,3 +362,5 @@ ui.initUI({
 });
 
 hit('visit');
+
+initFeedback({ game: 'landlords' });
