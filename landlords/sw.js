@@ -1,4 +1,4 @@
-const VERSION = 'mwxkg8ol';
+const VERSION = 'mwxljvnp';
 const CACHE = 'pp-landlords-' + VERSION;
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/favicon-64.png'];
 const CDN = /^https:\/\/(cdnjs\.cloudflare\.com|unpkg\.com|cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)\//;

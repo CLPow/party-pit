@@ -5,6 +5,7 @@ const runs = [
   ['mean-meme-card-club', []],
   ['tunnel-traitors', ['20', 'mixed']],
   ['meowltdown', ['20', 'mixed']],
+  ['deal-rush', ['20']],
 ];
 let bad = 0;
 for (const [g, args] of runs) {

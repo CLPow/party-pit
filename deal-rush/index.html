@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Deal Rush</title>
+  <meta name="description" content="Landlords: Deal Rush, a fast online city-trading card game for 2 to 20 players. Collect full sets of world cities, charge rent and steal deals. Play in your browser with friends.">
+  <meta name="theme-color" content="#0c1222">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Deal Rush">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=mwxljvnp">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="bg" aria-hidden="true"></div>
+
+  <section id="home" class="screen">
+    <a href="../" class="pp-back">◀ Party Pit</a>
+    <div class="home-wrap">
+      <div class="hero">
+        <div id="heroLogo" class="hero-logo" role="img" aria-label="Landlords: Deal Rush"></div>
+        <p class="tag">The fast card spin-off of Landlords. Collect full sets of world cities, charge rent, and steal the deals your friends were counting on.</p>
+      </div>
+      <div class="panel join-panel">
+        <label class="field"><span>Your name</span><input id="nameIn" maxlength="20" autocomplete="nickname" placeholder="e.g. Mia"></label>
+        <div class="field"><span>Your token</span><div id="emojiRow" class="pick-row"></div></div>
+        <div class="field"><span>Your colour</span><div id="colorRow" class="pick-row colors"></div></div>
+        <button class="btn big gold" data-action="create">🏙️ Create a room</button>
+        <div class="join-row"><input id="codeIn" maxlength="5" placeholder="ROOM CODE" autocapitalize="characters" autocomplete="off"><button class="btn big blue" data-action="join">Join</button></div>
+        <div id="resumeBox" class="resume" hidden>You were hosting room <b id="resumeCode"></b>. <button class="btn small gold" data-action="resume">Resume hosting</button> <button class="btn small ghost" data-action="forget">Forget it</button></div>
+        <button class="linkbtn" data-action="rules">How to play</button>
+        <div id="installBox" class="install" hidden>
+          <button id="installBtn" class="btn small ghost">📲 Install the app</button>
+          <p id="installHint" class="muted small" hidden></p>
+        </div>
+      </div>
+    </div>
+    <p class="fine">Landlords: Deal Rush is an original game. This site records your IP address, your player name and how many times you visit, for usage statistics.</p>
+  </section>
+
+  <section id="lobby" class="screen" hidden>
+    <header class="topbar">
+      <div class="brand-mini"><img src="icons/favicon-64.png" alt="" width="30" height="30"><span>Deal Rush</span></div>
+      <div class="grow"></div>
+      <button class="iconbtn" data-action="rules" title="How to play">📜</button>
+      <button class="iconbtn" data-action="leave" title="Leave">🚪</button>
+    </header>
+    <div class="lobby-wrap">
+      <div class="panel code-panel">
+        <div class="muted small">ROOM CODE</div>
+        <div id="bigCode" class="big-code"></div>
+        <div id="qr" class="qr"></div>
+        <div class="code-btns"><button class="btn gold" data-action="copy">🔗 Copy invite link</button><button class="btn ghost" data-action="share">📤 Share</button></div>
+        <p id="netNote" class="muted small"></p>
+      </div>
+      <div class="panel">
+        <h3 id="lobbyHead">Players</h3>
+        <div id="lobbyPlayers" class="lobby-players"></div>
+        <div class="host-only lobby-host">
+          <div id="settings"></div>
+          <div class="lobby-btns"><button class="btn ghost" data-action="addbot">🤖 Add a bot</button><button class="btn big gold" data-action="start">🚀 Start the game</button></div>
+        </div>
+        <p class="guest-only muted">Waiting for the host to start…</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="table" class="screen" hidden>
+    <header class="topbar">
+      <div class="brand-mini"><img src="icons/favicon-64.png" alt="" width="30" height="30"></div>
+      <div class="round-info"><b id="goalInfo"></b><span id="codeMini" class="code-mini"></span></div>
+      <div class="grow"></div>
+      <div id="deckInfo" class="deck-info" title="Cards left in the deck"></div>
+      <button class="iconbtn" data-action="rules" title="How to play">📜</button>
+      <button class="iconbtn" data-action="sound" title="Sound">🔊</button>
+      <button class="iconbtn host-only" data-action="hostmenu" title="Host controls">⚙️</button>
+      <button class="iconbtn" data-action="leave" title="Leave">🚪</button>
+    </header>
+    <main class="board">
+      <div class="opps-hint muted">Tap a player to see their cities and bank</div>
+      <div id="opps" class="opps"></div>
+      <div id="turnBar" class="turnbar"></div>
+      <div id="mine" class="mine"></div>
+    </main>
+    <div id="dock" class="dock">
+      <div class="dock-bar">
+        <div id="dockInfo" class="dock-info"></div>
+        <div class="react-bar" id="reactBar"><button data-react="😂">😂</button><button data-react="😱">😱</button><button data-react="🤑">🤑</button><button data-react="😤">😤</button><button data-react="🙏">🙏</button><button class="chat-btn" data-action="chat" title="Say something">💬</button></div>
+        <button id="endBtn" class="btn gold" data-action="end" hidden>End turn ➜</button>
+      </div>
+      <div id="hand" class="hand"></div>
+    </div>
+  </section>
+
+  <div id="modal" class="modal" hidden><div class="modal-card" id="modalCard"></div></div>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <script type="importmap">{"imports":{"./js/fx.js":"./js/fx.js?v=mwxljvnp","./js/host.js":"./js/host.js?v=mwxljvnp","./js/main.js":"./js/main.js?v=mwxljvnp","./js/net.js":"./js/net.js?v=mwxljvnp","./js/pwa.js":"./js/pwa.js?v=mwxljvnp","./js/rules.js":"./js/rules.js?v=mwxljvnp","../shared/logos.js":"../shared/logos.js?v=mwxljvnp","../shared/net.js":"../shared/net.js?v=mwxljvnp","../shared/pwa.js":"../shared/pwa.js?v=mwxljvnp"}}</script>
+  <script type="module" src="js/main.js?v=mwxljvnp"></script>
+</body>
+</html>

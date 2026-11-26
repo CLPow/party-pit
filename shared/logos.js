@@ -222,11 +222,39 @@ function ppDie() {
   return { ink, defs, art, frame: 'url(#frame)', panel: 'url(#panel)' };
 }
 
+function drFan() {
+  const ink = '#0a0f1f';
+  const defs = `
+    <radialGradient id="panel" cx="50%" cy="38%" r="75%"><stop offset="0" stop-color="#25407a"/><stop offset=".7" stop-color="#12213f"/><stop offset="1" stop-color="#0a1428"/></radialGradient>
+    <linearGradient id="frame" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd35a"/><stop offset="1" stop-color="#e8912a"/></linearGradient>
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf5"/><stop offset="1" stop-color="#efe6cf"/></linearGradient>
+    <linearGradient id="bolt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff6c2"/><stop offset="1" stop-color="#ffb020"/></linearGradient>`;
+  const card = (rot, color, label, icon) => `<g transform="rotate(${rot} 256 430)">
+      <rect x="176" y="120" width="160" height="224" rx="18" fill="url(#paper)" stroke="${ink}" stroke-width="7"/>
+      <rect x="186" y="130" width="140" height="52" rx="10" fill="${color}"/>
+      <text x="256" y="262" text-anchor="middle" font-size="64">${icon}</text>
+      <circle cx="306" cy="316" r="17" fill="${ink}"/><text x="306" y="323" text-anchor="middle" font-family="${ROUND}" font-weight="700" font-size="18" fill="#ffd35a">4M</text>
+    </g>`;
+  const towers = [[70, 360, 46, 120], [122, 330, 38, 150], [168, 380, 44, 100], [330, 350, 40, 130], [376, 316, 48, 164], [430, 372, 40, 108]]
+    .map(([x, y, w, h]) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#0b1630" stroke="#1f3566" stroke-width="3"/>`).join('');
+  const art = `
+    ${towers}
+    <g fill="#ffd35a" opacity=".7">${[[84, 380], [96, 400], [136, 352], [136, 376], [344, 372], [392, 340], [404, 366], [444, 392]].map(([x, y]) => `<rect x="${x}" y="${y}" width="8" height="10"/>`).join('')}</g>
+    ${card(-22, '#e63946', 'DUBAI', '🏙️')}
+    ${card(0, '#3a86ff', 'BERLIN', '🏢')}
+    ${card(22, '#8338ec', 'TOKYO', '🗼')}
+    <path d="M300 84L246 196H290L258 300L360 160H312L346 84Z" fill="url(#bolt)" stroke="${ink}" stroke-width="7" stroke-linejoin="round"/>`;
+  return { ink, defs, art, frame: 'url(#frame)', panel: 'url(#panel)' };
+}
+
 const word = (text, { font, fill, ink, size = 52, y = 450, spacing = 2 }) => `
   <rect x="40" y="${y - size - 18}" width="432" height="${size + 44}" fill="${ink}" opacity=".78"/>
   <text x="256" y="${y}" text-anchor="middle" font-family="${font}" font-weight="800" font-size="${size}" letter-spacing="${spacing}" fill="${fill}" stroke="${ink}" stroke-width="6" stroke-linejoin="round" paint-order="stroke">${text}</text>`;
 
 const DESIGNS = {
+  'deal-rush': {
+    a: [drFan, (k) => word('DEAL RUSH', { font: ROUND, fill: '#ffd35a', ink: k, size: 58, spacing: 3 })],
+  },
   'tunnel-traitors': {
     a: [ttLantern, (k) => word('TUNNEL TRAITORS', { font: SERIF, fill: '#ffc95a', ink: k, size: 34, spacing: 0 })],
     b: [ttBadge, (k) => word('TUNNEL TRAITORS', { font: SERIF, fill: '#ffc95a', ink: k, size: 34, spacing: 0 })],
@@ -242,7 +270,7 @@ const DESIGNS = {
   },
 };
 
-export const CHOSEN = { 'tunnel-traitors': 'a', meowltdown: 'a', 'party-pit': 'c' };
+export const CHOSEN = { 'tunnel-traitors': 'a', meowltdown: 'a', 'party-pit': 'c', 'deal-rush': 'a' };
 
 export function logo(game, { variant = CHOSEN[game], text = false, bleed = false } = {}) {
   const [make, wm] = DESIGNS[game][variant];
