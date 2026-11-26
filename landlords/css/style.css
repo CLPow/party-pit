@@ -1001,3 +1001,7 @@ body.phone.land .hb-main .actions.stack .btn:not(.big) { font-size: 13px; paddin
 @keyframes twinkleColor { 0%, 100% { background: color-mix(in srgb, var(--c) 22%, transparent); box-shadow: none; } 45% { background: var(--c); box-shadow: 0 0 5px var(--c); } }
 body.lite .rays, body.lite .stars, body.lite .tower::before, body.lite .troof::after, body.lite .tflag, body.lite #center .logo, body.lite .icon, body.lite .lights span, body.lite .prow.turn .avatar, body.lite [class*="twinkle"] { animation: none !important; }
 body.lite .plane { display: none; }
+
+html, body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+input, textarea, [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+img, svg { -webkit-user-drag: none; }

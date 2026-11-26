@@ -587,3 +587,7 @@ body.calm .pl.turn .av-ring::before, body.calm .card::after, body.calm .face::af
 .cb-t { margin-top: 6px; font-size: 14px; font-style: italic; }
 .cb-play { margin-top: 8px; border: 1px solid rgba(255, 214, 140, 0.35); background: rgba(255, 240, 220, 0.08); border-radius: 999px; padding: 5px 12px; font-size: 12.5px; font-weight: 700; pointer-events: auto; }
 body.lite .cave-bg i, body.lite .tile.lit .lamp, body.lite .tile.goal:not(.open) svg, body.lite .tile.goal.gold svg, body.lite .role-chip.hidden-role::after, body.lite .card::after, body.lite .face::after, body.lite .pack.on::after, body.lite .logo::before, body.lite .logo-img { animation: none !important; }
+
+html, body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+input, textarea, [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+img, svg { -webkit-user-drag: none; }

@@ -520,3 +520,7 @@ body.q-low .ant-led, body.q-low .geiger-needle, body.calm .ant-led, body.calm .g
   :root { --card-w: 52px; }
   .deck-count { font-size: .72rem; padding: 1px 8px; bottom: -9px; }
 }
+
+html, body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+input, textarea, [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+img, svg { -webkit-user-drag: none; }

@@ -491,3 +491,7 @@ html:lang(zh-Hans) .card, html:lang(zh-Hant) .card, html:lang(zh-Hans) .sub .fac
   .react-bar button { width: 28px; height: 28px; font-size: 0.95rem; }
   .toasts { bottom: 16px; }
 }
+
+html, body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+input, textarea, [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+img, svg { -webkit-user-drag: none; }
