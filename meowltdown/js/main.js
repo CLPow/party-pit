@@ -1165,7 +1165,7 @@ function inviteUrl() {
   return u.toString();
 }
 
-function layoutSeats() {
+function layoutSeats(again = false) {
   const p = app.pub;
   const arena = $('#arena');
   const W = arena.clientWidth;
@@ -1178,17 +1178,24 @@ function layoutSeats() {
   box.classList.toggle('compact', n > (phone ? 6 : 10) || (landscape() && H < 380));
   box.classList.toggle('tiny', n > (landscape() ? 8 : phone ? 12 : 22));
   const land = landscape();
-  const hw = W * (land ? 0.43 : phone ? 0.41 : 0.42);
   const cx = W / 2;
   const cy = H * (land ? 0.5 : phone ? 0.52 : 0.48);
   const sr = box.classList.contains('tiny') ? 30 : box.classList.contains('compact') ? 38 : 48;
   const hh = Math.max(40, Math.min(H * (land ? 0.34 : phone ? 0.38 : 0.39), cy - sr, H - cy - sr - 18));
+  const hw = land ? W * 0.43 : phone ? W * 0.41 : Math.min(W * 0.42, hh * 1.9 + 140);
+  const tw = land ? hw * 1.42 : Math.max(hw * 1.2, (hw - sr - 16) * 2);
+  const th = land ? hh * 1.42 : Math.max(hh * 1.1, (hh - sr - 26) * 2);
   const top = $('#tableTop');
-  if (top) {
-    const tw = hw * 1.42;
-    const th = hh * 1.42;
-    Object.assign(top.style, { left: `${cx - tw / 2}px`, top: `${cy - th / 2}px`, width: `${tw}px`, height: `${th}px` });
+  if (top) Object.assign(top.style, { left: `${cx - tw / 2}px`, top: `${cy - th / 2}px`, width: `${tw}px`, height: `${th}px` });
+  const st = $('#status');
+  const deckH = $('#deck')?.offsetHeight || 120;
+  const room = th / 2 - deckH / 2 - 14;
+  const inDock = land || phone || room < 54;
+  if (document.body.classList.contains('status-in-dock') !== inDock) {
+    document.body.classList.toggle('status-in-dock', inDock);
+    if (!again) return layoutSeats(true);
   }
+  if (st) st.style.top = inDock ? '' : `${Math.max(8, cy - th / 2 + 14)}px`;
   const POW = 2 / 7;
   const STEPS = 960;
   const pts = [];
@@ -1205,8 +1212,11 @@ function layoutSeats() {
   return ids.map((id, i) => {
     const want = (((i - meIdx + n) % n) / n) * total;
     let j = 0;
-    while (j < STEPS && pts[j + 1].len <= want) j++;
-    return { id, x: pts[j].x, y: pts[j].y };
+    while (j < STEPS - 1 && pts[j + 1].len <= want) j++;
+    const a0 = pts[j];
+    const a1 = pts[j + 1];
+    const f = a1.len > a0.len ? Math.min(1, Math.max(0, (want - a0.len) / (a1.len - a0.len))) : 0;
+    return { id, x: a0.x + (a1.x - a0.x) * f, y: a0.y + (a1.y - a0.y) * f };
   });
 }
 

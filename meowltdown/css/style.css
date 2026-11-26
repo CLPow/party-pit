@@ -524,3 +524,7 @@ body.q-low .ant-led, body.q-low .geiger-needle, body.calm .ant-led, body.calm .g
 html, body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 input, textarea, [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
 img, svg { -webkit-user-drag: none; }
+body.status-in-dock .status { display: none; }
+body.status-in-dock .status-dock { display: block; margin: 0 auto 6px; width: max-content; max-width: calc(100% - 24px); padding: 7px 14px; border-radius: 999px; background: rgba(6,10,7,.92); border: 1px solid var(--line); font-weight: 700; font-size: .85rem; text-align: center; }
+body.status-in-dock .status-dock.mine { border-color: var(--hot); color: var(--hot); box-shadow: 0 0 18px rgba(255,210,61,.3); }
+body.status-in-dock .status-dock.alert { border-color: var(--red); color: #ffb3a0; }
