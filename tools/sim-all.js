@@ -6,6 +6,7 @@ const runs = [
   ['tunnel-traitors', ['20', 'mixed']],
   ['meowltdown', ['20', 'mixed']],
   ['deal-rush', ['20']],
+  ['double-talk', ['20']],
 ];
 let bad = 0;
 for (const [g, args] of runs) {

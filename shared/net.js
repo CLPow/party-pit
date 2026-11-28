@@ -1,3 +1,4 @@
+import { bindVoice, unbindVoice, handle as handleVoice, validVoice, cleanVoice, voiceOn } from './voice.js';
 export const RELAY_URL = 'https://party-pit-relay.landlords.workers.dev';
 const relayOverride = (() => { try { return new URLSearchParams(window.location.search).get('relay'); } catch { return null; } })();
 const RELAY = relayOverride || RELAY_URL;
@@ -150,12 +151,27 @@ export function createHost(code, h) {
         send(cid, { t: 'rejoin' });
         return;
       }
+      if (env.m.t === 'vo') {
+        if (!voiceOn() || !validVoice(env.m)) return;
+        const out = cleanVoice(env.m);
+        const raw = JSON.stringify(out);
+        const used = new Set(route.values());
+        const relayed = c instanceof RelayLink;
+        for (const x of clients) if (x.connected && used.has(x) && !(relayed && x instanceof RelayLink)) x.publish(base + '/down', raw, { qos: 0 });
+        handleVoice(out);
+        return;
+      }
       h.onData(cid, env.m, c instanceof RelayLink);
     });
     return c;
   });
 
   const failTimer = setTimeout(() => { if (!ready) h.onError({ type: 'network' }); }, CONNECT_MS);
+  bindVoice((m) => {
+    const payload = JSON.stringify(m);
+    const used = new Set(route.values());
+    for (const c of clients) if (c.connected && used.has(c)) c.publish(base + '/down', payload, { qos: 0 });
+  });
   const sweep = setInterval(() => {
     const now = Date.now();
     for (const [cid, at] of seen) {
@@ -182,6 +198,7 @@ export function createHost(code, h) {
       for (const c of clients) if (c.connected && used.has(c)) c.publish(base + '/down', payload, { qos: 0 });
     },
     destroy() {
+      unbindVoice();
       clearTimeout(failTimer);
       clearInterval(sweep);
       clients.forEach((c) => c.end(true));
@@ -304,6 +321,7 @@ export function joinHost(code, h) {
         if (c !== client) return;
         lastHeard = Date.now();
         if (msg.t === 'pong') return;
+        if (msg.t === 'vo') { if (validVoice(msg)) handleVoice(msg); return; }
         h.onData(msg);
       });
       c.on('offline', () => { if (g === gen && c === client) h.onClose(); });
@@ -314,6 +332,14 @@ export function joinHost(code, h) {
 
   start();
   const pinger = setInterval(() => up({ ping: 1 }), PING_MS);
+  const sendVoice = (m) => {
+    if (client instanceof RelayLink && client.connected) {
+      try { client.ws.send(JSON.stringify({ vo: m })); } catch { /* socket closing */ }
+      return;
+    }
+    up({ m });
+  };
+  bindVoice(sendVoice);
   const failover = () => {
     if (destroyed || !client) return;
     bad.set(client.idx, Date.now() + 60000);
@@ -326,16 +352,11 @@ export function joinHost(code, h) {
 
   return {
     send(m) { up({ m }); },
-    voice(m) {
-      if (client instanceof RelayLink && client.connected) {
-        try { client.ws.send(JSON.stringify({ vo: m })); } catch { /* socket closing */ }
-        return;
-      }
-      up({ m });
-    },
+    voice: sendVoice,
     failover,
     destroy() {
       destroyed = true;
+      unbindVoice();
       clearTimers();
       clearInterval(pinger);
       clearInterval(watchdog);

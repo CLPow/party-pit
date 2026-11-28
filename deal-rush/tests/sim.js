@@ -1,7 +1,7 @@
 import * as R from '../js/rules.js';
 
 const runs = Number(process.argv[2] || 30);
-const sizes = (process.argv[3] || '2,3,4,5,6,8,10,15,20').split(',').map(Number);
+const sizes = (process.argv[3] || '2,3,4,5,6,8,10,15,20,25,32').split(',').map(Number);
 let seed = 4242;
 const rng = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
 Math.random = rng;

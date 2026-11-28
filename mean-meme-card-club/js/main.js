@@ -1,3 +1,5 @@
+import { initVoice } from '../../shared/voice.js';
+import { initQuality, onQuality } from '../../shared/perf.js';
 import { initFeedback } from '../../shared/feedback.js';
 import { joinHost, randomCode, RELAY_URL } from './net.js';
 import { startHost, savedHost, clearSavedHost } from './host.js';
@@ -1143,3 +1145,5 @@ if (saved && urlCode === saved.code && saved.me?.key === app.me.key) {
 window.__mmcc = app;
 
 initFeedback({ game: 'mean-meme-card-club' });
+initVoice({ me: () => app.me.key, enabled: () => !!app.pub && !!(app.host || app.client), players: () => app.pub?.players || [], toast });
+initQuality();

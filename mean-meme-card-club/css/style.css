@@ -495,3 +495,6 @@ html:lang(zh-Hans) .card, html:lang(zh-Hant) .card, html:lang(zh-Hans) .sub .fac
 html, body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 input, textarea, [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
 img, svg { -webkit-user-drag: none; }
+
+body.q-low .bg-blobs i { animation: none; filter: blur(40px); }
+body.q-low .logo-img, body.q-low .lc-b, body.q-low .lc-w1, body.q-low .lc-w2, body.q-low .sub.next .face { animation: none; }

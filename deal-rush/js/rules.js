@@ -33,8 +33,8 @@ const MONEY_COUNTS = { 1: 6, 2: 5, 3: 3, 4: 3, 5: 2, 10: 1 };
 
 export const HAND_MAX = 7;
 export const PLAYS = 3;
-export const setsToWin = (n) => (n <= 5 ? 3 : n <= 10 ? 4 : n <= 15 ? 5 : 6);
-export const MAX_PLAYERS = 20;
+export const setsToWin = (n) => (n <= 5 ? 3 : n <= 10 ? 4 : n <= 15 ? 5 : n <= 20 ? 6 : n <= 26 ? 7 : 8);
+export const MAX_PLAYERS = 32;
 const LOG_KEEP = 60;
 const BOT_MS = 900;
 const QUIET_MS = 1100;

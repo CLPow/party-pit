@@ -1,3 +1,5 @@
+import { initVoice } from '../../shared/voice.js';
+import { initQuality, onQuality } from '../../shared/perf.js';
 import { initFeedback } from '../../shared/feedback.js';
 import { joinHost, randomCode, RELAY_URL } from './net.js';
 import { startHost, savedHost, clearSavedHost } from './host.js';
@@ -386,7 +388,7 @@ function renderLobby() {
     try { new window.QRCode($('#qr'), { text: inviteUrl(), width: 150, height: 150, colorDark: '#0c1222', colorLight: '#ffffff' }); } catch { /* qr failed */ }
   }
   const seated = p.players.filter((x) => !x.spectator);
-  $('#lobbyHead').textContent = `${seated.length} player${seated.length === 1 ? '' : 's'} (2–20)`;
+  $('#lobbyHead').textContent = `${seated.length} player${seated.length === 1 ? '' : 's'} (2–32)`;
   setHtml($('#lobbyPlayers'), seated.map((x) => `<div class="lp ${x.id === app.me.key ? 'me' : ''}" style="--c:${esc(x.color)}"><span class="av">${esc(x.emoji)}</span><span class="nm">${esc(x.name)}${x.id === p.hostId ? ' 👑' : ''}${x.bot ? ' <small>bot</small>' : ''}</span>${isHost() && x.id !== app.me.key ? `<button class="xbtn" data-kick="${esc(x.id)}" aria-label="Remove">✕</button>` : ''}</div>`).join(''));
   const st = p.settings;
   const n = Math.max(2, seated.length);
@@ -777,3 +779,5 @@ if (roomParam && app.me.name && !params.has('nojoin')) setTimeout(() => { if (!a
 window.__dr = app;
 
 initFeedback({ game: 'deal-rush' });
+initVoice({ me: () => app.me.key, enabled: () => !!app.pub && !!(app.host || app.client), players: () => app.pub?.players || [], toast: (m, k) => toast(esc(m), k) });
+initQuality();

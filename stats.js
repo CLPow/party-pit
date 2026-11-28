@@ -1,6 +1,6 @@
 import { RELAY_BASE as RELAY_URL } from './shared/net.js';
 
-const GAMES = [['', 'All games'], ['landlords', 'Landlords'], ['mean-meme-card-club', 'Mean Meme Card Club'], ['tunnel-traitors', 'Tunnel Traitors'], ['meowltdown', 'Meow-ltdown'], ['deal-rush', 'Deal Rush']];
+const GAMES = [['', 'All games'], ['landlords', 'Landlords'], ['mean-meme-card-club', 'Mean Meme Card Club'], ['tunnel-traitors', 'Tunnel Traitors'], ['meowltdown', 'Meow-ltdown'], ['deal-rush', 'Deal Rush'], ['double-talk', 'Double Talk']];
 const GNAME = { ...Object.fromEntries(GAMES.slice(1)), hub: 'Hub' };
 const chips = (list) => String(list || '').split(',').filter(Boolean).map((g) => `<span class="gchip ${esc(g)}">${esc(GNAME[g] || g)}</span>`).join('');
 let game = '';

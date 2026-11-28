@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-export const GAMES = ['landlords', 'mean-meme-card-club', 'tunnel-traitors', 'meowltdown', 'deal-rush'];
+export const GAMES = ['landlords', 'mean-meme-card-club', 'tunnel-traitors', 'meowltdown', 'deal-rush', 'double-talk'];
 const v = Date.now().toString(36);
 const shared = readdirSync('shared').filter((f) => f.endsWith('.js'));
 
@@ -26,5 +26,6 @@ for (const g of GAMES) {
   writeFileSync(swp, readFileSync(swp, 'utf8').replace(/const VERSION = '[^']*';/, `const VERSION = '${v}';`));
 }
 stampPage('stats.html', Object.fromEntries(shared.map((f) => [`./shared/${f}`, `./shared/${f}?v=${v}`])), 'stats.js');
+writeFileSync('sw.js', readFileSync('sw.js', 'utf8').replace(/const VERSION = '[^']*';/, `const VERSION = '${v}';`));
 stampPage('index.html', Object.fromEntries(shared.map((f) => [`./shared/${f}`, `./shared/${f}?v=${v}`])), 'hub.js');
 console.log('stamped', v);

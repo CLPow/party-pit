@@ -8,7 +8,8 @@ Online party games for big groups, in one site: **https://clpow.github.io/party-
 | Mean Meme Card Club | 3–50 | `/mean-meme-card-club/` |
 | Tunnel Traitors | 3–32 | `/tunnel-traitors/` |
 | Meow-ltdown | 2–40 | `/meowltdown/` |
-| Landlords: Deal Rush | 2–20 | `/deal-rush/` |
+| Landlords: Deal Rush | 2–32 | `/deal-rush/` |
+| Double Talk | 3–40 | `/double-talk/` |
 
 Static site with no build step. Every game runs host-authoritative in the host's browser; traffic goes through one Cloudflare Worker (`relay/`, a Durable Object per room, keyed by game and room code) with public MQTT brokers as a fallback.
 
@@ -30,7 +31,7 @@ Static site with no build step. Every game runs host-authoritative in the host's
 
 ```
 npm run stamp   # before every commit: cache-busts scripts in every game
-npm run sim     # bot-only simulations for all four games
+npm run sim     # bot-only simulations for every game
 npm run serve   # local server on :8080
 ```
 

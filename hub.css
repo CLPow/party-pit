@@ -32,3 +32,11 @@ body { background: radial-gradient(120% 80% at 50% 0%, var(--bg2), var(--bg) 70%
 html, body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 input, textarea, [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
 img, svg { -webkit-user-drag: none; }
+
+.install-box { margin: 22px auto 0; max-width: 520px; text-align: center; }
+.install-btn { width: 100%; padding: 14px 18px; border-radius: 16px; border: 1px dashed rgba(255, 209, 102, 0.6); background: linear-gradient(180deg, #2c3b66, #223056); color: #fff; font: 700 1rem Inter, system-ui, sans-serif; cursor: pointer; }
+.install-btn:hover { filter: brightness(1.1); }
+.install-hint { margin: 10px 0 0; color: #9aa6c8; font-size: 14px; line-height: 1.45; }
+.toasts { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 80; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+.toast { background: rgba(14, 20, 38, 0.92); color: #fff; padding: 10px 16px; border-radius: 14px; font: 600 14px Inter, system-ui, sans-serif; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); }
+@media (display-mode: standalone) { .install-box { display: none !important; } }

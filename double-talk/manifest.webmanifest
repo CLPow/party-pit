@@ -1,0 +1,19 @@
+{
+  "id": "./",
+  "name": "Double Talk",
+  "short_name": "Double Talk",
+  "description": "Online word-bluffing party game for 3 to 40 players. Give clues, vote, find the Imposters.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#0b0620",
+  "theme_color": "#0b0620",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

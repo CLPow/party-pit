@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Landlords: Deal Rush",
   "short_name": "Deal Rush",
-  "description": "Fast online city-trading card game for 2 to 20 players. Collect full sets, charge rent, steal deals.",
+  "description": "Fast online city-trading card game for 2 to 32 players. Collect full sets, charge rent, steal deals.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

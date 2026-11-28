@@ -1,11 +1,13 @@
 import { logo } from './shared/logos.js';
 import { initFeedback } from './shared/feedback.js';
+import { initPwa } from './shared/pwa.js';
 
 export const GAMES = [
   { id: 'landlords', name: 'Landlords', players: '2–32', tag: 'Property trading', desc: 'Roll, buy world cities, build skyscrapers and bankrupt your friends on an animated board.', color: '#2f7de1' },
   { id: 'mean-meme-card-club', name: 'Mean Meme Card Club', players: '3–50', tag: 'Fill-in-the-blank', desc: 'One judge, one prompt, everyone plays their worst card. Hundreds of packs, English and Chinese.', color: '#7a3cff' },
   { id: 'tunnel-traitors', name: 'Tunnel Traitors', players: '3–32', tag: 'Hidden traitors', desc: 'Dig toward the gold together, while the traitors among you quietly cave the tunnels in.', color: '#e8912a' },
-  { id: 'deal-rush', name: 'Landlords: Deal Rush', players: '2–20', tag: 'Set collecting', desc: 'The fast card spin-off of Landlords. Bank cash, collect city sets, charge rent and steal the deals your friends were counting on.', color: '#e8a317' },
+  { id: 'deal-rush', name: 'Landlords: Deal Rush', players: '2–32', tag: 'Set collecting', desc: 'The fast card spin-off of Landlords. Bank cash, collect city sets, charge rent and steal the deals your friends were counting on.', color: '#e8a317' },
+  { id: 'double-talk', name: 'Double Talk', players: '3–40', desc: 'Find the Imposters. Everyone gets a secret word, but the Imposters got a slightly different one. Give clues, vote them out before they blend in.', tag: 'Find the Imposter', color: '#ff4fd8' },
   { id: 'meowltdown', name: 'Meow-ltdown', players: '2–40', tag: 'Push-your-luck', desc: 'Lab cats draw from a reactor until someone pulls the Meltdown. Hiss, overload and bribe to survive.', color: '#2aa86a' },
 ];
 
@@ -25,3 +27,12 @@ document.getElementById('games').innerHTML = GAMES.map((g) => `
 
 
 initFeedback({ game: 'hub', always: true });
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+initPwa({ toast });

@@ -1,0 +1,26 @@
+{
+  "id": "./",
+  "name": "Party Pit",
+  "short_name": "Party Pit",
+  "description": "Online party games for big groups. Host a room, share the code, play together.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#0d0f26",
+  "theme_color": "#0d0f26",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    { "src": "hub/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "hub/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "hub/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Landlords", "url": "landlords/", "icons": [{ "src": "landlords/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Mean Meme Card Club", "url": "mean-meme-card-club/", "icons": [{ "src": "mean-meme-card-club/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Tunnel Traitors", "url": "tunnel-traitors/", "icons": [{ "src": "tunnel-traitors/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Double Talk", "url": "double-talk/", "icons": [{ "src": "double-talk/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Meow-ltdown", "url": "meowltdown/", "icons": [{ "src": "meowltdown/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

@@ -257,3 +257,5 @@ body.calm *, body.calm *::before, body.calm *::after { transition-duration: 0s !
 html, body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 input, textarea, [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
 img, svg { -webkit-user-drag: none; }
+
+@media (max-width: 760px) { body.ppv-on #table .sets { padding-left: 52px; } }

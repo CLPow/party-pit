@@ -1,3 +1,5 @@
+import { initVoice } from '../../shared/voice.js';
+import { initQuality, onQuality } from '../../shared/perf.js';
 import { initFeedback } from '../../shared/feedback.js';
 import { joinHost, randomCode, RELAY_URL } from './net.js';
 import { startHost, savedHost, clearSavedHost } from './host.js';
@@ -1429,3 +1431,6 @@ else if (seat && urlCode && seat.code === urlCode && app.me.name) beginJoin(urlC
 window.__tt = app;
 
 initFeedback({ game: 'tunnel-traitors' });
+initVoice({ me: () => app.me.key, enabled: () => !!app.pub && !!(app.host || app.client), players: () => app.pub?.players || [], toast });
+onQuality((t) => { if (t === 'low') document.body.classList.add('lite'); });
+initQuality();

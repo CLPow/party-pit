@@ -1,6 +1,5 @@
 import { createHost } from './net.js';
 import * as R from './rules.js';
-import { validVoice } from './voice.js';
 
 const SAVE_KEY = 'mow-host';
 
@@ -30,7 +29,7 @@ export function clearSavedHost() {
 
 const cleanAvatar = (a) => (/^\d{1,2}-\d{1,2}$/.test(String(a)) ? String(a) : '0-0');
 
-export function startHost({ code, me, resume, bots = 0, onUpdate, onReady, onError, onToast, onFx, onVoice }) {
+export function startHost({ code, me, resume, bots = 0, onUpdate, onReady, onError, onToast, onFx }) {
   const s = resume ? resume.s : R.newGame(me.key);
   const pidOf = new Map();
   const cidOf = new Map();
@@ -229,15 +228,6 @@ export function startHost({ code, me, resume, bots = 0, onUpdate, onReady, onErr
     },
     onData(cid, m, relayed) {
       if (!m || typeof m !== 'object') return;
-      if (m.t === 'vo') {
-        const vp = pidOf.get(cid);
-        if (!vp || s.settings.voice === false || !validVoice(m)) return;
-        const out = { t: 'vo', k: m.k, from: vp, s: m.s, d: m.d, lv: m.lv, dur: m.dur };
-        if (relayed) net.broadcastLegacy(out);
-        else net.broadcast(out);
-        onVoice(out);
-        return;
-      }
       if (m.t === 'join') {
         const key = String(m.key || '').replace(/[^a-z0-9]/gi, '').slice(0, 32);
         if (!key || key === me.key) return;
@@ -280,7 +270,6 @@ export function startHost({ code, me, resume, bots = 0, onUpdate, onReady, onErr
     state: s,
     act: (m) => hostAct(m),
     react: (m) => fx(me.key, m),
-    voice(m) { if (s.settings.voice !== false && validVoice(m)) net.broadcast({ ...m, from: me.key }); },
     debug: () => net.debug(),
     destroy() {
       destroyed = true;

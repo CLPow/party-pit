@@ -233,7 +233,6 @@ function beginHost(resume) {
     onReady: () => { $('#netNote').textContent = 'Room is open. Share the code!'; },
     onError: () => { $('#netNote').textContent = 'Network trouble. Retrying…'; toast('Could not reach the game servers. Check your connection.', 'bad'); },
     onToast: (m, k) => toast(m, k),
-    onVoice: (m) => V.handle(m),
   });
   hit('host', { room: code });
 }
@@ -1915,7 +1914,13 @@ window.addEventListener('orientationchange', () => setTimeout(relayout, 250));
 
 initPwa({ toast });
 V.initVoice({
-  send: (m) => { if (app.role === 'host') app.host?.voice(m); else app.client?.voice(m); },
+  dock: false,
+  audioCtx: F.audioCtx,
+  hold: F.holdAudio,
+  duck,
+  volume: F.getSfxVolume,
+  sfx: { turn: () => sfx.turn(), click: () => sfx.click(), pop: () => sfx.pop() },
+  players: () => app.pub?.players || [],
   me: () => app.me.key,
   enabled: () => !!app.pub && app.pub.settings.voice !== false,
   toast,
@@ -1924,7 +1929,7 @@ V.initVoice({
   onClip: (from) => logLine(`🎙 ${nameOf(from)} sent a voice message.`),
 });
 setupPTT();
-initQuality();
+initQuality({ key: 'mow-quality' });
 renderHome();
 hit('visit');
 

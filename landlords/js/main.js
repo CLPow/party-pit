@@ -1,3 +1,5 @@
+import { initVoice } from '../../shared/voice.js';
+import { initQuality, onQuality } from '../../shared/perf.js';
 import { initFeedback } from '../../shared/feedback.js';
 import { newState, addPlayer, removePlayer, startGame, act, tick, endNow, P, MAX_PLAYERS, StaleAction, TURN_ACTS, actCtx } from './rules.js';
 import { botStep, BOT_NAMES } from './bot.js';
@@ -364,3 +366,6 @@ ui.initUI({
 hit('visit');
 
 initFeedback({ game: 'landlords' });
+initVoice({ me: () => app.me, enabled: () => !!app.state && !!app.net, players: () => app.state?.players || [], toast: ui.toast });
+onQuality((t) => { if (t === 'low') document.body.classList.add('lite'); });
+initQuality();
