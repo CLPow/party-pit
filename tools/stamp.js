@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-export const GAMES = ['landlords', 'mean-meme-card-club', 'tunnel-traitors', 'meowltdown', 'deal-rush', 'double-talk'];
+export const GAMES = ['landlords', 'mean-meme-card-club', 'tunnel-traitors', 'meowltdown', 'deal-rush'];
 const v = Date.now().toString(36);
 const shared = readdirSync('shared').filter((f) => f.endsWith('.js'));
 

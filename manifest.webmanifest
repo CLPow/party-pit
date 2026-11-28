@@ -20,7 +20,6 @@
     { "name": "Landlords", "url": "landlords/", "icons": [{ "src": "landlords/icons/icon-192.png", "sizes": "192x192" }] },
     { "name": "Mean Meme Card Club", "url": "mean-meme-card-club/", "icons": [{ "src": "mean-meme-card-club/icons/icon-192.png", "sizes": "192x192" }] },
     { "name": "Tunnel Traitors", "url": "tunnel-traitors/", "icons": [{ "src": "tunnel-traitors/icons/icon-192.png", "sizes": "192x192" }] },
-    { "name": "Double Talk", "url": "double-talk/", "icons": [{ "src": "double-talk/icons/icon-192.png", "sizes": "192x192" }] },
     { "name": "Meow-ltdown", "url": "meowltdown/", "icons": [{ "src": "meowltdown/icons/icon-192.png", "sizes": "192x192" }] }
   ]
 }

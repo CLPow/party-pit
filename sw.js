@@ -1,4 +1,4 @@
-const VERSION = 'mx03lv8z';
+const VERSION = 'mx03wa5a';
 const CACHE = 'pp-hub-' + VERSION;
 const SHELL = ['./', './index.html', './manifest.webmanifest', './hub/icon-192.png', './hub/icon-512.png', './hub/favicon-64.png'];
 const CDN = /^https:\/\/(cdnjs\.cloudflare\.com|unpkg\.com|cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)\//;

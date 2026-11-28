@@ -247,52 +247,11 @@ function drFan() {
   return { ink, defs, art, frame: 'url(#frame)', panel: 'url(#panel)' };
 }
 
-function dtDefs() {
-  return `
-    <radialGradient id="panel" cx="50%" cy="36%" r="78%"><stop offset="0" stop-color="#3a1f86"/><stop offset=".65" stop-color="#1a0f45"/><stop offset="1" stop-color="#0b0620"/></radialGradient>
-    <linearGradient id="frame" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff4fd8"/><stop offset="1" stop-color="#36e6ff"/></linearGradient>
-    <linearGradient id="pink" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9be9"/><stop offset="1" stop-color="#e0189f"/></linearGradient>
-    <linearGradient id="cyan" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a6f6ff"/><stop offset="1" stop-color="#14a9d6"/></linearGradient>
-    <radialGradient id="lens" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".5" stop-color="#bff6ff" stop-opacity=".12"/><stop offset="1" stop-color="#36e6ff" stop-opacity=".05"/></radialGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe58a"/><stop offset="1" stop-color="#e49b00"/></linearGradient>`;
-}
-
-function dtFace(cx, cy, r, fill, ink, sly = false) {
-  const eyeY = cy - r * 0.08;
-  const mask = `<path d="M${cx - r * 0.82} ${eyeY - r * 0.12}c${r * 0.3}-${r * 0.32} ${r * 0.62}-${r * 0.3} ${r * 0.82}-${r * 0.06}c${r * 0.2}-${r * 0.24} ${r * 0.52}-${r * 0.26} ${r * 0.82} ${r * 0.06}l-${r * 0.06} ${r * 0.34}c-${r * 0.24} ${r * 0.22}-${r * 0.56} ${r * 0.2}-${r * 0.76}-${r * 0.02}c-${r * 0.2} ${r * 0.22}-${r * 0.52} ${r * 0.24}-${r * 0.76} ${r * 0.02}z" fill="${ink}"/>`;
-  const eyes = sly
-    ? `<ellipse cx="${cx - r * 0.38}" cy="${eyeY + r * 0.04}" rx="${r * 0.14}" ry="${r * 0.08}" fill="#fff"/><ellipse cx="${cx + r * 0.38}" cy="${eyeY + r * 0.04}" rx="${r * 0.14}" ry="${r * 0.08}" fill="#fff"/><circle cx="${cx - r * 0.3}" cy="${eyeY + r * 0.05}" r="${r * 0.06}" fill="${ink}"/><circle cx="${cx + r * 0.46}" cy="${eyeY + r * 0.05}" r="${r * 0.06}" fill="${ink}"/>`
-    : `<circle cx="${cx - r * 0.38}" cy="${eyeY + r * 0.04}" r="${r * 0.12}" fill="#fff"/><circle cx="${cx + r * 0.38}" cy="${eyeY + r * 0.04}" r="${r * 0.12}" fill="#fff"/><circle cx="${cx - r * 0.38}" cy="${eyeY + r * 0.06}" r="${r * 0.06}" fill="${ink}"/><circle cx="${cx + r * 0.38}" cy="${eyeY + r * 0.06}" r="${r * 0.06}" fill="${ink}"/>`;
-  const mouth = sly
-    ? `<path d="M${cx - r * 0.3} ${cy + r * 0.42}q${r * 0.36} ${r * 0.24} ${r * 0.66}-${r * 0.08}" fill="none" stroke="${ink}" stroke-width="${r * 0.1}" stroke-linecap="round"/>`
-    : `<path d="M${cx - r * 0.28} ${cy + r * 0.4}q${r * 0.28} ${r * 0.2} ${r * 0.56} 0" fill="none" stroke="${ink}" stroke-width="${r * 0.1}" stroke-linecap="round"/>`;
-  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="${ink}" stroke-width="${r * 0.1}"/>${mask}${eyes}${mouth}`;
-}
-
-function dtLens() {
-  const ink = '#0b0620';
-  const bub = (x, y, w, txt, rot) => `<g transform="rotate(${rot} ${x + w / 2} ${y + 30})"><path d="M${x + 18} ${y}h${w - 36}a18 18 0 0 1 18 18v28a18 18 0 0 1-18 18h-${w / 2 - 28}l-14 16-4-16h-${w / 2 - 22}a18 18 0 0 1-18-18v-28a18 18 0 0 1 18-18z" fill="url(#pink)" stroke="${ink}" stroke-width="6" stroke-linejoin="round"/><text x="${x + w / 2}" y="${y + 44}" text-anchor="middle" font-family="${ROUND}" font-weight="700" font-size="30" fill="#fff" stroke="${ink}" stroke-width="4" paint-order="stroke">${txt}</text></g>`;
-  const art = `
-    ${bub(60, 78, 132, 'SEAL', -8)}${bub(316, 70, 140, 'SEAL', 7)}${bub(52, 330, 140, 'SEAL', 6)}
-    <circle cx="276" cy="262" r="128" fill="#0b0620" opacity=".35"/>
-    <circle cx="276" cy="262" r="118" fill="url(#cyan)"/>
-    ${dtFace(276, 262, 84, 'url(#cyan)', ink, true)}
-    <circle cx="276" cy="262" r="118" fill="url(#lens)"/>
-    <circle cx="276" cy="262" r="118" fill="none" stroke="url(#gold)" stroke-width="22"/>
-    <circle cx="276" cy="262" r="118" fill="none" stroke="${ink}" stroke-width="6"/><circle cx="276" cy="262" r="129" fill="none" stroke="${ink}" stroke-width="5"/>
-    <path d="M362 350l70 70" stroke="${ink}" stroke-width="46" stroke-linecap="round"/><path d="M362 350l70 70" stroke="url(#gold)" stroke-width="32" stroke-linecap="round"/>
-    <path d="M214 196a84 84 0 0 1 52-26" stroke="#fff" stroke-width="10" stroke-linecap="round" fill="none" opacity=".7"/>`;
-  return { ink, defs: dtDefs(), art, frame: 'url(#frame)', panel: 'url(#panel)' };
-}
-
 const word = (text, { font, fill, ink, size = 52, y = 450, spacing = 2 }) => `
   <rect x="40" y="${y - size - 18}" width="432" height="${size + 44}" fill="${ink}" opacity=".78"/>
   <text x="256" y="${y}" text-anchor="middle" font-family="${font}" font-weight="800" font-size="${size}" letter-spacing="${spacing}" fill="${fill}" stroke="${ink}" stroke-width="6" stroke-linejoin="round" paint-order="stroke">${text}</text>`;
 
 const DESIGNS = {
-  'double-talk': {
-    c: [dtLens, (k) => word('DOUBLE TALK', { font: ROUND, fill: '#fff', ink: k, size: 54, spacing: 3 })],
-  },
   'deal-rush': {
     a: [drFan, (k) => word('DEAL RUSH', { font: ROUND, fill: '#ffd35a', ink: k, size: 58, spacing: 3 })],
   },
@@ -311,7 +270,7 @@ const DESIGNS = {
   },
 };
 
-export const CHOSEN = { 'tunnel-traitors': 'a', meowltdown: 'a', 'party-pit': 'c', 'deal-rush': 'a', 'double-talk': 'c' };
+export const CHOSEN = { 'tunnel-traitors': 'a', meowltdown: 'a', 'party-pit': 'c', 'deal-rush': 'a' };
 
 export function logo(game, { variant = CHOSEN[game], text = false, bleed = false } = {}) {
   const [make, wm] = DESIGNS[game][variant];

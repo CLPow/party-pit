@@ -9,7 +9,6 @@ Online party games for big groups, in one site: **https://clpow.github.io/party-
 | Tunnel Traitors | 3–32 | `/tunnel-traitors/` |
 | Meow-ltdown | 2–40 | `/meowltdown/` |
 | Landlords: Deal Rush | 2–32 | `/deal-rush/` |
-| Double Talk | 3–40 | `/double-talk/` |
 
 Static site with no build step. Every game runs host-authoritative in the host's browser; traffic goes through one Cloudflare Worker (`relay/`, a Durable Object per room, keyed by game and room code) with public MQTT brokers as a fallback.
 
